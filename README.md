@@ -8,7 +8,9 @@
 |---|---|
 | ![English version](output/day8-akiya-en.png) | ![日本語版](output/day8-akiya-ja.png) |
 
-Web page: <https://shinyanakashima.github.io/30daymapchallenge-2026day8-akiya/>
+Interactive page: <https://shinyanakashima.github.io/30daymapchallenge-2026day8-akiya/>
+
+On the page you can switch the scenario (A / B / C), change the share of akiya that people move into (0–100%) with a slider, and click or tap a prefecture to see its population from 1920 to 2025 and the year it goes back to. English and Japanese are available (`?lang=ja`). The calculation in the page is the same as in `scripts/compute.py`; at 100% it gives the same results.
 
 ## The map
 
@@ -91,9 +93,10 @@ python scripts/fetch_data.py         # statistics -> data/raw/
 python scripts/build_boundaries.py   # N03 (about 630 MB, cached in .cache/) -> data/geo/prefectures.geojson
 python scripts/compute.py            # -> data/inputs.csv, data/results.csv, data/national.csv
 python scripts/render.py             # -> output/day8-akiya-en.png, output/day8-akiya-ja.png (1080 x 1350)
+cd scripts && python build_web.py    # -> docs/data/akiya.json, docs/data/prefectures.geojson
 ```
 
-`render.py` downloads the fonts into `.cache/fonts/` on first run. Copy the images into `docs/` to update the web page.
+`render.py` downloads the fonts into `.cache/fonts/` on first run. Copy the images into `docs/` to update the web page. The page in `docs/` is deployed to GitHub Pages by `.github/workflows/pages.yml` on every push to `main` that changes `docs/`.
 
 ## Alt text
 

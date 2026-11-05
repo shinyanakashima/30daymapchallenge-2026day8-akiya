@@ -234,6 +234,8 @@ def main():
     nat["national_peak"] = int(max(v for v in series[0].values() if v))
     nat["national_peak_year"] = max(series[0], key=lambda y: series[0][y] or 0)
 
+    pd.DataFrame({"year": CENSUS_YEARS, "pop": [series[0][y] for y in CENSUS_YEARS]}).astype(
+        {"pop": "Int64"}).to_csv(OUT / "national_series.csv", index=False)
     df.to_csv(OUT / "inputs.csv", index=False)
     res.to_csv(OUT / "results.csv", index=False)
     nat.to_csv(OUT / "national.csv", index=False)

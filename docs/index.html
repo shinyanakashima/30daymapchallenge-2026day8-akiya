@@ -11,83 +11,523 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
 <style>
-  :root { --paper: #f4f1ea; --ink: #000; }
+  :root { --paper: #f4f1ea; --ink: #000; --mute: #555; }
   * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
   body {
     margin: 0; background: var(--paper); color: var(--ink);
     font-family: "Source Serif 4", "Noto Serif JP", Georgia, serif;
-    font-size: 17px; line-height: 1.55;
+    font-size: 17px; line-height: 1.5;
   }
-  main { max-width: 760px; margin: 0 auto; padding: 40px 16px 64px; }
-  h1 { font-size: 1.9rem; line-height: 1.2; font-weight: 600; margin: 0 0 .3rem; }
-  .ja { font-family: "Noto Serif JP", serif; }
-  .sub { margin: 0 0 1.4rem; }
-  .tag { font-style: italic; margin: 0 0 1.6rem; }
-  hr { border: 0; border-top: 1px solid var(--ink); margin: 2rem 0; }
-  figure { margin: 0 0 2rem; }
-  figure img { width: 100%; height: auto; display: block; border: 1px solid var(--ink); }
-  figcaption { font-size: .9rem; font-style: italic; margin-top: .4rem; }
-  h2 { font-size: 1.15rem; font-weight: 600; margin: 2rem 0 .6rem; }
-  ul { padding-left: 1.2rem; }
-  li { margin-bottom: .35rem; }
-  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: .5rem 0 1rem; }
-  th, td { border-bottom: 1px solid var(--ink); padding: .35rem .4rem; text-align: left; vertical-align: top; }
-  th { font-weight: 600; }
+  body.ja { font-family: "Noto Serif JP", "Source Serif 4", serif; font-size: 16px; }
+  main { max-width: 1120px; margin: 0 auto; padding: 28px 16px 64px; }
+  .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .lang { white-space: nowrap; }
+  h1 { font-size: clamp(1.5rem, 3.4vw, 2.3rem); line-height: 1.15; font-weight: 600; margin: 0 0 .35rem; max-width: 22em; }
+  .sub { margin: 0; }
+  .tag { font-style: italic; margin: .4rem 0 0; font-size: .92rem; }
+  .rule { border: 0; border-top: 3px double var(--ink); margin: 18px 0 18px; }
+  button { font: inherit; color: var(--ink); background: none; cursor: pointer; }
+  .lang button { border: 0; padding: 2px 4px; text-decoration: none; }
+  .lang button[aria-pressed="true"] { text-decoration: underline; text-underline-offset: 3px; font-weight: 600; }
+  .controls { display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: flex-end; margin-bottom: 8px; }
+  .seg { display: flex; border: 1px solid var(--ink); }
+  .seg button { border: 0; border-right: 1px solid var(--ink); padding: 7px 12px; text-align: left; line-height: 1.2; }
+  .seg button:last-child { border-right: 0; }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .seg small { display: block; font-size: .72rem; font-style: italic; opacity: .85; }
+  .slider label { display: block; font-size: .9rem; }
+  .slider output { font-weight: 600; font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 260px; max-width: 70vw; accent-color: #000; }
+  .national { font-style: italic; font-size: clamp(1.25rem, 2.6vw, 1.7rem); margin: 10px 0 2px; }
+  .national-sub { font-size: .9rem; margin: 0 0 10px; min-height: 1.4em; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  .map svg { width: 100%; height: auto; display: block; touch-action: manipulation; }
+  .map path.pref { stroke: #000; stroke-width: .45; cursor: pointer; }
+  .map path.pref.c-new { stroke: var(--paper); stroke-width: .35; }
+  .map path.pref:focus { outline: none; }
+  .map .sel { fill: none; stroke: #000; stroke-width: 2.4; pointer-events: none; }
+  .map .sel-halo { fill: none; stroke: var(--paper); stroke-width: 5; pointer-events: none; }
+  .map text { font-family: inherit; paint-order: stroke; stroke: var(--paper); stroke-width: 4px; stroke-linejoin: round; pointer-events: none; }
+  .map .lead { stroke: #000; stroke-width: .7; }
+  .hint { font-size: .85rem; font-style: italic; margin: 4px 0 0; }
+  .panel { border-top: 1px solid var(--ink); padding-top: 10px; }
+  .panel h2 { margin: 0; font-size: 1.5rem; font-weight: 600; }
+  .panel .alt { margin: 0 0 6px; font-size: .95rem; }
+  .big { font-size: 2.6rem; line-height: 1.05; margin: 8px 0 4px; font-style: italic; }
+  .big small { font-size: 1rem; font-style: normal; display: block; margin-bottom: 2px; }
+  dl { display: grid; grid-template-columns: auto auto; gap: 2px 14px; margin: 10px 0; font-size: .92rem; }
+  dt { margin: 0; } dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+  .chart svg { width: 100%; height: auto; display: block; }
+  .chart text { font-family: inherit; font-size: 11px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 14px 0 0; font-size: .88rem; align-items: center; }
+  .legend .t { font-weight: 600; width: 100%; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend svg { width: 34px; height: 16px; border: 1px solid var(--ink); display: block; }
+  h3 { font-size: 1.1rem; font-weight: 600; margin: 2rem 0 .5rem; }
+  .notes { columns: 2 320px; column-gap: 32px; font-size: .9rem; padding-left: 1.1rem; margin: 0; }
+  .notes li { break-inside: avoid; margin-bottom: .4rem; }
+  .posters { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .posters img { width: 100%; height: auto; display: block; border: 1px solid var(--ink); }
+  .posters figure { margin: 0; } .posters figcaption { font-size: .85rem; font-style: italic; margin-top: 4px; }
+  .small { font-size: .88rem; }
   a { color: var(--ink); }
-  .small { font-size: .9rem; }
-  .wrap { overflow-x: auto; }
+  [hidden] { display: none !important; }
+  @media (max-width: 760px) {
+    .grid { grid-template-columns: 1fr; }
+    .posters { grid-template-columns: 1fr; }
+    .top { flex-direction: column-reverse; gap: 4px; }
+    .lang { align-self: flex-end; }
+    .seg button { padding: 6px 8px; font-size: .9rem; flex: 1; }
+    .big { font-size: 2.1rem; }
+  }
 </style>
 </head>
 <body>
 <main>
-  <h1>If people moved into Japan&rsquo;s akiya, what year would each place go back to?</h1>
-  <p class="sub ja" lang="ja">空き家に移住したら、街はいつに戻れるか？</p>
-  <p class="tag">#30DayMapChallenge 2026 &middot; Day 8: Utopia &mdash; &ldquo;A map of something which could be.&rdquo;</p>
+  <div class="top">
+    <div>
+      <h1 data-t="title"></h1>
+      <p class="sub" data-t="subtitle"></p>
+      <p class="tag">#30DayMapChallenge 2026 &middot; Day 8: Utopia &mdash; &ldquo;A map of something which could be.&rdquo;</p>
+    </div>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button> /
+      <button type="button" data-lang="ja" aria-pressed="false">日本語</button>
+    </div>
+  </div>
+  <hr class="rule">
 
-  <figure>
-    <img src="day8-akiya-en.png" width="1080" height="1350"
-         alt="A black-and-white map of Japan. Prefectures are hatched by the census year their population would return to if 3.86 million vacant homes with no specific use were filled. People from abroad: Japan reaches 131.7 million, a new record; most rural prefectures go back only to 2000–2015 (Hokkaido 2015, Akita 2015, Kagoshima 2000) and 18 prefectures set new records. People from Tokyo: Tokyo falls to its 1930 level. People from the six big-city prefectures: Osaka 1970, Aichi 1985, Tokyo 2000.">
-    <figcaption>English version (1080 &times; 1350). <a href="day8-akiya-en.png">Open image</a></figcaption>
-  </figure>
-
-  <figure>
-    <img src="day8-akiya-ja.png" width="1080" height="1350" lang="ja"
-         alt="空き家に人が住んだ場合に各都道府県の人口が何年の水準に戻るかを示した白黒の日本地図。海外から来る場合、日本全体は1億3,172万人と過去最多。北海道・秋田は2015年、鹿児島は2000年。東京から来る場合、東京は1930年の水準。大都市6都府県から来る場合、大阪1970年、愛知1985年、東京2000年。">
-    <figcaption>日本語版 <a href="day8-akiya-ja.png">画像を開く</a></figcaption>
-  </figure>
-
-  <hr>
-
-  <h2>What the map shows</h2>
-  <p>Japan has about 3.86 million vacant dwellings that are not held for rent, for sale or as second homes (2023). If people moved into all of them at each prefecture&rsquo;s average household size, 8.67 million people would move in. For each prefecture, the map shows the census year whose population it would return to, in three cases of where the people come from.</p>
-  <div class="wrap">
-  <table>
-    <tr><th></th><th>Japan</th><th>Hokkaido</th><th>Akita</th><th>Tokyo</th><th>Osaka</th></tr>
-    <tr><td>A. From abroad</td><td>131.7 million, a new record (peak 128.1 million in 2010)</td><td>2015</td><td>2015</td><td>New record</td><td>New record</td></tr>
-    <tr><td>B. From Tokyo</td><td>No change</td><td>2015</td><td>2015</td><td>1930</td><td>New record</td></tr>
-    <tr><td>C. From the big cities</td><td>No change</td><td>2015</td><td>2015</td><td>2000</td><td>1970</td></tr>
-  </table>
+  <div class="controls">
+    <div>
+      <div class="small" data-t="whereFrom"></div>
+      <div class="seg" role="group" id="scenarios">
+        <button type="button" data-s="A" aria-pressed="true"><span data-t="A"></span><small data-t="Asub"></small></button>
+        <button type="button" data-s="B" aria-pressed="false"><span data-t="B"></span><small data-t="Bsub"></small></button>
+        <button type="button" data-s="C" aria-pressed="false"><span data-t="C"></span><small data-t="Csub"></small></button>
+      </div>
+    </div>
+    <div class="slider">
+      <label for="rate"><span data-t="rate"></span> <output id="rateOut">100%</output></label>
+      <input id="rate" type="range" min="0" max="100" step="5" value="100">
+      <div class="small" id="moversOut"></div>
+    </div>
   </div>
 
-  <h2>Assumptions</h2>
-  <ul>
-    <li>Akiya here are vacant dwellings with no specific use (賃貸・売却用及び二次的住宅を除く空き家), 2023 Housing and Land Survey. Dwellings held for rent or sale and second homes such as holiday houses are not included.</li>
-    <li>Many of these houses could not be lived in as they are. This is a calculation of what could be, not a forecast.</li>
-    <li>People per house: average members per private household (一般世帯の1世帯当たり人員) of each prefecture, 2020 census.</li>
-    <li>New population: 2025 census preliminary count plus the people moving in. In B, everyone comes from Tokyo (moves into Tokyo&rsquo;s own akiya are not counted). In C, everyone comes from Tokyo, Kanagawa, Saitama, Chiba, Aichi and Osaka, split by their population.</li>
-    <li>Return year: the latest census year (every five years, 1920&ndash;2020; 1945 not used) in which the prefecture had at least the new population. For prefectures that lose people, the latest census year with no more than the new population. No interpolation.</li>
-    <li>In B and C the population of Japan as a whole does not change.</li>
-    <li>Okinawa is shown in an inset box, not in its true position. The Ogasawara Islands (Tokyo) are not shown.</li>
-  </ul>
+  <p class="national" id="national"></p>
+  <p class="national-sub" id="nationalSub"></p>
 
-  <h2>Sources</h2>
-  <ul class="small">
-    <li>Statistics Bureau of Japan, 2023 Housing and Land Survey, Table 1-1 (e-Stat, retrieved 2026-11-05)</li>
-    <li>Statistics Bureau of Japan, 2025 Population Census, preliminary counts, Table 1 (e-Stat, retrieved 2026-11-05)</li>
-    <li>Statistics Bureau of Japan, Population Census time series: population by prefecture 1920&ndash;2020; households 2020 (e-Stat, retrieved 2026-11-05)</li>
-    <li>Boundaries: 「国土数値情報（行政区域データ）」（国土交通省）, 2025-01-01, simplified</li>
-  </ul>
-  <p class="small">Data, code and full results by prefecture: <a href="https://github.com/shinyanakashima/30daymapchallenge-2026day8-akiya">github.com/shinyanakashima/30daymapchallenge-2026day8-akiya</a></p>
+  <div class="grid">
+    <div class="map">
+      <svg id="map" role="img" aria-labelledby="mapTitle"><title id="mapTitle">Map</title></svg>
+      <p class="hint" data-t="hint"></p>
+      <div class="legend" id="legend"></div>
+    </div>
+    <div class="panel" id="panel" aria-live="polite"></div>
+  </div>
+
+  <h3 data-t="notesH"></h3>
+  <ul class="notes" id="notes"></ul>
+
+  <h3 data-t="postersH"></h3>
+  <div class="posters">
+    <figure><a href="day8-akiya-en.png"><img src="day8-akiya-en.png" width="1080" height="1350" loading="lazy"
+      alt="Poster, English version: a black-and-white map of Japan hatched by the census year each prefecture would return to if its vacant homes were filled. From abroad: Japan reaches 131.7 million, a new record; Hokkaido and Akita 2015, Kagoshima 2000. From Tokyo: Tokyo 1930. From the big cities: Osaka 1970, Aichi 1985, Tokyo 2000."></a>
+      <figcaption>English (1080 &times; 1350)</figcaption></figure>
+    <figure><a href="day8-akiya-ja.png"><img src="day8-akiya-ja.png" width="1080" height="1350" loading="lazy" lang="ja"
+      alt="日本語版ポスター：空き家に人が住んだ場合に各都道府県の人口が何年の水準に戻るかを示した白黒の日本地図。海外から：日本全体1億3,172万人で過去最多、北海道・秋田2015年、鹿児島2000年。東京から：東京1930年。大都市から：大阪1970年、愛知1985年、東京2000年。"></a>
+      <figcaption>日本語 (1080 &times; 1350)</figcaption></figure>
+  </div>
+
+  <h3 data-t="srcH"></h3>
+  <ul class="small" id="sources"></ul>
+  <p class="small"><span data-t="repo"></span> <a href="https://github.com/shinyanakashima/30daymapchallenge-2026day8-akiya">github.com/shinyanakashima/30daymapchallenge-2026day8-akiya</a></p>
 </main>
+
+<script>
+(() => {
+"use strict";
+
+const T = {
+  en: {
+    title: "If people moved into Japan’s akiya, what year would each place go back to?",
+    subtitle: "空き家に移住したら、街はいつに戻れるか？",
+    whereFrom: "Where do the people come from?",
+    A: "A  From abroad", Asub: "added to today’s population",
+    B: "B  From Tokyo", Bsub: "Japan’s total unchanged",
+    C: "C  From the big cities", Csub: "six prefectures, by population",
+    rate: "Share of akiya lived in:",
+    movers: n => `${fmtM(n)} people move in`,
+    hint: "Tap or click a prefecture. Use the slider to change how many akiya are lived in.",
+    natRecord: (p) => `Japan: ${fmtM(p)} people, a new record`,
+    natBack: (p, y) => `Japan: back to ${y} (${fmtM(p)} people)`,
+    natSame: "Japan: no change",
+    natSubRecord: (pk, y) => `Above the ${y} census peak of ${fmtM(pk)}.`,
+    natSubSame: "People only move within Japan.",
+    legendT: "Population returns to the level of",
+    legend: { "2015": "2015–2020", "2005": "2005–2010", "1980": "1980–2000", "lt1980": "Before 1980", "new": "New record", "none": "No change" },
+    name: p => p.en, alt: p => p.ja,
+    backTo: "Back to", record: "New record", recordSub: "above every census since 1920", low: "Record low", same: "No change",
+    rows: { akiya: "Akiya (2023)", pph: "People per household (2020)", pop2025: "Population 2025", move: "Moving in", out: "Moving out", newPop: "Population after the move" },
+    chartNote: (y) => y ? `The dashed line is the new population; the ring marks ${y}.` : "The dashed line is the new population.",
+    sending: "People leave this prefecture. The year is the latest census with no more people than after the move.",
+    tokyoB: "Moves into Tokyo’s own akiya are not counted in B.",
+    notesH: "Assumptions",
+    notes: [
+      "Akiya here are vacant dwellings with no specific use (2023 Housing and Land Survey): 3.86 million. Dwellings held for rent or sale and second homes are not included.",
+      "Many of these houses could not be lived in as they are. This is a calculation of what could be, not a forecast.",
+      "People per house: average members per private household in each prefecture, 2020 census. At 100%, 8.67 million people move in.",
+      "New population: 2025 census preliminary count plus the people moving in. In B everyone comes from Tokyo; in C from Tokyo, Kanagawa, Saitama, Chiba, Aichi and Osaka, split by their 2025 population.",
+      "Return year: the latest census year (every five years, 1920–2020; 1945 not used) in which the prefecture had at least the new population. For prefectures that lose people, the latest census year with no more than the new population. No interpolation.",
+      "In B and C the population of Japan as a whole does not change.",
+      "Okinawa is shown in an inset box, not in its true position. The Ogasawara Islands (Tokyo) are not shown.",
+    ],
+    postersH: "Posters",
+    srcH: "Sources",
+    sources: [
+      "Statistics Bureau of Japan, 2023 Housing and Land Survey, Table 1-1 (e-Stat, retrieved 2026-11-05)",
+      "Statistics Bureau of Japan, 2025 Population Census, preliminary counts, Table 1 (e-Stat, retrieved 2026-11-05)",
+      "Statistics Bureau of Japan, Population Census time series: population by prefecture 1920–2020; households 2020 (e-Stat, retrieved 2026-11-05)",
+      "Boundaries: MLIT National Land Numerical Information, Administrative Areas (2025-01-01), simplified",
+    ],
+    repo: "Data, code and results by prefecture:",
+    okinawa: "Okinawa (inset)",
+  },
+  ja: {
+    title: "空き家に移住したら、街はいつに戻れるか？",
+    subtitle: "If people moved into Japan’s akiya, what year would each place go back to?",
+    whereFrom: "人はどこから来るか",
+    A: "A  海外から", Asub: "今の人口に上乗せ",
+    B: "B  東京から", Bsub: "日本全体は変わらない",
+    C: "C  大都市から", Csub: "6都府県から人口比で",
+    rate: "空き家に人が住む割合：",
+    movers: n => `${fmtJ(n)}が移住`,
+    hint: "都道府県をクリック（タップ）すると詳しく表示します。スライダーで住む割合を変えられます。",
+    natRecord: (p) => `日本全体：${fmtJ(p)}、過去最多`,
+    natBack: (p, y) => `日本全体：${y}年の水準（${fmtJ(p)}）`,
+    natSame: "日本全体：変わらない",
+    natSubRecord: (pk, y) => `${y}年の国勢調査（${fmtJ(pk)}）を上回る。`,
+    natSubSame: "国内での移動のみ。",
+    legendT: "人口が戻る年",
+    legend: { "2015": "2015–2020年", "2005": "2005–2010年", "1980": "1980–2000年", "lt1980": "1980年より前", "new": "過去最多を更新", "none": "変わらない" },
+    name: p => p.ja, alt: p => p.en,
+    backTo: "戻る年", record: "過去最多", recordSub: "1920年以降のどの国勢調査より多い", low: "過去最少", same: "変わらない",
+    rows: { akiya: "空き家（2023年）", pph: "1世帯当たり人員（2020年）", pop2025: "2025年の人口", move: "移住してくる人", out: "出ていく人", newPop: "移動後の人口" },
+    chartNote: (y) => y ? `破線は移動後の人口、丸は${y}年。` : "破線は移動後の人口。",
+    sending: "人が出ていく都府県。移動後の人口以下だった最も新しい国勢調査の年を示す。",
+    tokyoB: "Bでは東京都内の空き家への移動は数えない。",
+    notesH: "計算の前提",
+    notes: [
+      "対象は2023年住宅・土地統計調査の「使用目的のない空き家」（賃貸・売却用及び二次的住宅を除く空き家）386万戸。賃貸用・売却用・別荘などは含まない。",
+      "空き家にはそのままでは住めないものも含まれる。予測ではなく、「ありえるかもしれない」仮定の計算である。",
+      "1戸に住む人数は、2020年国勢調査の都道府県別「一般世帯の1世帯当たり人員」。100%のとき867万人が移住する。",
+      "移動後の人口は、令和7年国勢調査の速報値に移住者を加えたもの。Bは全員東京から、Cは東京・神奈川・埼玉・千葉・愛知・大阪から2025年の人口の割合で。",
+      "戻る年は、移動後の人口以上だった最も新しい国勢調査の年（1920〜2020年、5年ごと。1945年は使わない）。人口が減る都府県は、移動後の人口以下だった最も新しい年。補間はしない。",
+      "BとCでは日本全体の人口は変わらない。",
+      "沖縄県は別枠で、実際の位置とは違う場所に表示している。小笠原諸島（東京都）は表示していない。",
+    ],
+    postersH: "ポスター画像",
+    srcH: "出典",
+    sources: [
+      "総務省統計局「令和5年住宅・土地統計調査」第1-1表（e-Stat、2026年11月5日取得）",
+      "総務省統計局「令和7年国勢調査 人口速報集計」第1表（e-Stat、2026年11月5日取得）",
+      "総務省統計局「国勢調査 時系列データ」都道府県別人口1920〜2020年、2020年の世帯（e-Stat、2026年11月5日取得）",
+      "境界：「国土数値情報（行政区域データ）」（国土交通省）2025年1月1日を加工",
+    ],
+    repo: "データ・コード・都道府県別の結果：",
+    okinawa: "沖縄（別枠）",
+  },
+};
+
+function fmtM(n) {
+  const m = n / 1e6;
+  return m >= 1 ? `${m.toFixed(m >= 10 ? 1 : 2)} million` : `${Math.round(n).toLocaleString("en")}`;
+}
+function fmtJ(n) {
+  n = Math.round(n);
+  if (n >= 1e8) { const oku = Math.floor(n / 1e8), man = Math.round((n % 1e8) / 1e4); return `${oku}億${man.toLocaleString("ja")}万人`; }
+  if (n >= 1e4) return `${Math.round(n / 1e4).toLocaleString("ja")}万人`;
+  return `${n.toLocaleString("ja")}人`;
+}
+const fmtN = (n, lang) => Math.round(n).toLocaleString(lang === "ja" ? "ja" : "en");
+
+const state = { lang: "en", scen: "A", rate: 1, sel: 5 };
+let DATA, GEO, byCode = {};
+
+// ------------------------------------------------------------- model
+function compute() {
+  const r = state.rate, P = DATA.prefs;
+  const add = {}, now = {}, out = {};
+  P.forEach(p => { add[p.code] = Math.round(p.movers * r); now[p.code] = p.pop2025; });
+  const res = {};
+  P.forEach(p => { res[p.code] = { pop: now[p.code] + add[p.code], add: add[p.code], out: 0 }; });
+  if (state.scen === "B") {
+    const T = DATA.tokyo;
+    const total = P.filter(p => p.code !== T).reduce((s, p) => s + add[p.code], 0);
+    res[T] = { pop: now[T] - total, add: 0, out: total };
+  } else if (state.scen === "C") {
+    const S = DATA.sources_c;
+    const total = P.filter(p => !S.includes(p.code)).reduce((s, p) => s + add[p.code], 0);
+    const sum = S.reduce((s, c) => s + now[c], 0);
+    const exact = S.map(c => total * now[c] / sum);
+    const alloc = exact.map(Math.floor);
+    let rest = total - alloc.reduce((a, b) => a + b, 0);
+    exact.map((e, i) => [e - alloc[i], i]).sort((a, b) => b[0] - a[0]).slice(0, rest).forEach(([, i]) => alloc[i]++);
+    S.forEach((c, i) => { res[c] = { pop: now[c] - alloc[i], add: 0, out: alloc[i] }; });
+  }
+  P.forEach(p => { res[p.code].year = returnYear(res[p.code].pop, now[p.code], p.series); });
+  let natPop = DATA.national.pop2025;
+  if (state.scen === "A") natPop += P.reduce((s, p) => s + add[p.code], 0);
+  const nat = { pop: natPop, year: state.scen === "A" ? returnYear(natPop, DATA.national.pop2025, DATA.national.series) : "same" };
+  const movers = P.reduce((s, p) => s + Math.round(p.movers * r), 0);
+  return { res, nat, movers };
+}
+
+function returnYear(newPop, nowPop, series) {
+  if (newPop === nowPop) return "same";
+  const ys = DATA.years.filter(y => series[y] != null);
+  if (newPop > nowPop) {
+    const hit = ys.filter(y => series[y] >= newPop);
+    return hit.length ? Math.max(...hit) : "record";
+  }
+  const hit = ys.filter(y => series[y] <= newPop);
+  return hit.length ? Math.max(...hit) : "low";
+}
+
+function cls(y) {
+  if (y === "same") return "none";
+  if (y === "record") return "new";
+  if (y === "low") return "lt1980";
+  return y >= 2015 ? "2015" : y >= 2005 ? "2005" : y >= 1980 ? "1980" : "lt1980";
+}
+
+// ------------------------------------------------------------- map
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, attrs = {}, parent) => {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+};
+let proj, svg, paths = {}, selLayer, labelLayer;
+
+function patterns(defs, scale = 1) {
+  const mk = (id, size, angle, cross, w) => {
+    const p = el("pattern", { id, width: size, height: size, patternUnits: "userSpaceOnUse", patternTransform: `rotate(${angle})` }, defs);
+    el("rect", { width: size, height: size, fill: "#f4f1ea" }, p);
+    el("line", { x1: 0, y1: 0, x2: 0, y2: size, stroke: "#000", "stroke-width": w }, p);
+    if (cross) el("line", { x1: 0, y1: 0, x2: size, y2: 0, stroke: "#000", "stroke-width": w }, p);
+  };
+  mk("h2015", 7 * scale, 45, false, 1 * scale);
+  mk("h2005", 4.6 * scale, -45, false, 1 * scale);
+  mk("h1980", 6 * scale, 45, true, .9 * scale);
+  mk("hlt1980", 3.4 * scale, 45, true, .9 * scale);
+}
+const FILL = { "2015": "url(#h2015)", "2005": "url(#h2005)", "1980": "url(#h1980)", "lt1980": "url(#hlt1980)", "new": "#000", "none": "#f4f1ea" };
+
+function buildMap() {
+  const [x0, y0, x1, y1] = DATA.frame;
+  const W = 760, s = W / (x1 - x0), H = Math.round((y1 - y0) * s);
+  proj = ([x, y]) => [(x - x0) * s, (y1 - y) * s];
+  svg = document.getElementById("map");
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const defs = el("defs", {}, svg);
+  patterns(defs);
+  const g = el("g", {}, svg);
+  const ring = r => "M" + r.map(c => proj(c).map(v => v.toFixed(1)).join(",")).join("L") + "Z";
+  GEO.features.forEach(f => {
+    const code = f.properties.code;
+    const polys = f.geometry.type === "Polygon" ? [f.geometry.coordinates] : f.geometry.coordinates;
+    const d = polys.map(poly => poly.map(ring).join("")).join("");
+    const p = el("path", { d, class: "pref", tabindex: 0, role: "button" }, g);
+    p.addEventListener("click", () => select(code));
+    p.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(code); } });
+    p.addEventListener("mouseenter", () => { if (matchMedia("(hover: hover)").matches) select(code); });
+    paths[code] = p;
+  });
+  // inset frame
+  const [ix0, iy0, ix1, iy1] = DATA.inset, pad = 22000;
+  const a = proj([ix0 - pad, iy1 + pad]), b = proj([ix1 + pad, iy0 - pad]);
+  el("rect", { x: a[0], y: a[1], width: b[0] - a[0], height: b[1] - a[1], fill: "none", stroke: "#000", "stroke-width": .7 }, svg);
+  const it = el("text", { x: a[0] + 6, y: b[1] - 8, "font-style": "italic", "font-size": 15 }, svg);
+  it.dataset.t = "okinawa";
+  selLayer = el("g", {}, svg);
+  labelLayer = el("g", {}, svg);
+}
+
+const LABEL_OFF = { 1: [-110, -20, "end"], 5: [-70, 4, "end"], 13: [60, 26, "start"], 27: [-60, -48, "end"], 46: [62, -16, "start"] };
+
+function drawLabels(R) {
+  labelLayer.innerHTML = "";
+  const t = T[state.lang];
+  const k = 760 / Math.max(svg.clientWidth || 760, 300);
+  labelLayer.setAttribute("font-size", Math.max(14, 11.5 * k).toFixed(1));
+  for (const c in DATA.anchors) {
+    const [x, y] = proj(DATA.anchors[c]);
+    const [dx, dy, anchor] = LABEL_OFF[c];
+    const p = byCode[c];
+    const yr = R.res[c].year;
+    const v = yr === "record" ? t.record : yr === "same" ? t.same : yr === "low" ? t.low : (state.lang === "ja" ? yr + "年" : yr);
+    el("line", { x1: x, y1: y, x2: x + dx * .9, y2: y + dy, class: "lead" }, labelLayer);
+    el("circle", { cx: x, cy: y, r: 2.6, fill: "#000", stroke: "#f4f1ea", "stroke-width": 1 }, labelLayer);
+    const tx = el("text", { x: x + dx, y: y + dy + 4, "text-anchor": anchor }, labelLayer);
+    tx.textContent = `${state.lang === "ja" ? p.ja.replace(/[都府県]$/, "") : p.en} ${v}`;
+  }
+}
+
+// ------------------------------------------------------------- panel
+function chart(p, r) {
+  const W = 420, H = 230, m = { l: 52, r: 14, t: 16, b: 26 };
+  const ys = DATA.years.filter(y => p.series[y] != null);
+  const pts = ys.map(y => [y, p.series[y]]).concat([[2025, p.pop2025]]);
+  const vals = pts.map(d => d[1]).concat([r.pop]);
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  const padv = (hi - lo) * .08; lo = Math.max(0, lo - padv); hi += padv;
+  const X = y => m.l + (y - 1920) / (2025 - 1920) * (W - m.l - m.r);
+  const Y = v => m.t + (hi - v) / (hi - lo) * (H - m.t - m.b);
+  const s = document.createElementNS(NS, "svg");
+  s.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  s.setAttribute("role", "img");
+  // axes
+  el("line", { x1: m.l, y1: H - m.b, x2: W - m.r, y2: H - m.b, stroke: "#000", "stroke-width": .8 }, s);
+  [1920, 1950, 1980, 2000, 2025].forEach(y => {
+    el("line", { x1: X(y), y1: H - m.b, x2: X(y), y2: H - m.b + 4, stroke: "#000", "stroke-width": .8 }, s);
+    const t = el("text", { x: X(y), y: H - 6, "text-anchor": "middle" }, s); t.textContent = y;
+  });
+  const step = niceStep((hi - lo) / 4);
+  for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) {
+    el("line", { x1: m.l - 4, y1: Y(v), x2: m.l, y2: Y(v), stroke: "#000", "stroke-width": .8 }, s);
+    const t = el("text", { x: m.l - 7, y: Y(v) + 4, "text-anchor": "end" }, s);
+    t.textContent = state.lang === "ja" ? (v >= 1e8 ? (v / 1e8).toFixed(1) + "億" : Math.round(v / 1e4).toLocaleString("ja") + "万") : (v >= 1e6 ? (v / 1e6).toFixed(v % 1e6 ? 1 : 0) + "M" : Math.round(v / 1e3) + "k");
+  }
+  // series, broken at the 1945 gap
+  const seg = (arr, dash) => el("polyline", { points: arr.map(d => `${X(d[0])},${Y(d[1])}`).join(" "), fill: "none", stroke: "#000", "stroke-width": 1.4, "stroke-dasharray": dash || "" }, s);
+  const before = pts.filter(d => d[0] <= 1940), after = pts.filter(d => d[0] >= 1950);
+  if (before.length) seg(before);
+  if (before.length && after.length) seg([before[before.length - 1], after[0]], "2 3");
+  seg(after);
+  pts.forEach(d => el("circle", { cx: X(d[0]), cy: Y(d[1]), r: 2, fill: "#000" }, s));
+  // new population
+  el("line", { x1: m.l, y1: Y(r.pop), x2: X(2025), y2: Y(r.pop), stroke: "#000", "stroke-width": 1, "stroke-dasharray": "4 3" }, s);
+  el("line", { x1: X(2025), y1: Y(p.pop2025), x2: X(2025), y2: Y(r.pop), stroke: "#000", "stroke-width": 2 }, s);
+  el("circle", { cx: X(2025), cy: Y(r.pop), r: 4, fill: "#f4f1ea", stroke: "#000", "stroke-width": 1.6 }, s);
+  if (typeof r.year === "number") {
+    el("circle", { cx: X(r.year), cy: Y(p.series[r.year]), r: 6.5, fill: "none", stroke: "#000", "stroke-width": 1.6 }, s);
+  }
+  return s;
+}
+function niceStep(x) {
+  const e = Math.pow(10, Math.floor(Math.log10(x))), f = x / e;
+  return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * e;
+}
+
+function renderPanel(R) {
+  const t = T[state.lang], p = byCode[state.sel], r = R.res[state.sel];
+  const panel = document.getElementById("panel");
+  panel.innerHTML = "";
+  const h = document.createElement("h2"); h.textContent = t.name(p); panel.appendChild(h);
+  const a = document.createElement("p"); a.className = "alt"; a.textContent = t.alt(p); panel.appendChild(a);
+  const big = document.createElement("p"); big.className = "big";
+  const lab = document.createElement("small");
+  if (typeof r.year === "number") { lab.textContent = t.backTo; big.append(lab, state.lang === "ja" ? `${r.year}年` : String(r.year)); }
+  else if (r.year === "record") { lab.textContent = t.recordSub; big.append(t.record); big.appendChild(lab); lab.style.marginTop = "4px"; }
+  else if (r.year === "low") { big.append(t.low); }
+  else { big.append(t.same); }
+  panel.appendChild(big);
+  const dl = document.createElement("dl");
+  const row = (k, v) => { const dt = document.createElement("dt"), dd = document.createElement("dd"); dt.textContent = k; dd.textContent = v; dl.append(dt, dd); };
+  row(t.rows.akiya, fmtN(p.akiya, state.lang));
+  row(t.rows.pph, p.pph.toFixed(2));
+  row(t.rows.pop2025, fmtN(p.pop2025, state.lang));
+  if (r.out) row(t.rows.out, "−" + fmtN(r.out, state.lang)); else row(t.rows.move, "+" + fmtN(r.add, state.lang));
+  row(t.rows.newPop, fmtN(r.pop, state.lang));
+  panel.appendChild(dl);
+  const c = document.createElement("div"); c.className = "chart"; c.appendChild(chart(p, r)); panel.appendChild(c);
+  const n = document.createElement("p"); n.className = "hint";
+  n.textContent = t.chartNote(typeof r.year === "number" ? r.year : null);
+  if (r.out) n.textContent += " " + t.sending;
+  if (state.scen === "B" && state.sel === DATA.tokyo) n.textContent += " " + t.tokyoB;
+  panel.appendChild(n);
+}
+
+// ------------------------------------------------------------- update
+function update() {
+  const t = T[state.lang];
+  const R = compute();
+  for (const c in paths) {
+    const k = cls(R.res[c].year);
+    paths[c].setAttribute("fill", FILL[k]);
+    paths[c].setAttribute("class", "pref" + (k === "new" ? " c-new" : ""));
+    const p = byCode[c], y = R.res[c].year;
+    paths[c].setAttribute("aria-label", `${t.name(p)}: ${y === "record" ? t.record : y === "same" ? t.same : y === "low" ? t.low : y}`);
+  }
+  selLayer.innerHTML = "";
+  const d = paths[state.sel].getAttribute("d");
+  el("path", { d, class: "sel-halo" }, selLayer);
+  el("path", { d, class: "sel" }, selLayer);
+  drawLabels(R);
+  document.getElementById("rateOut").textContent = Math.round(state.rate * 100) + "%";
+  document.getElementById("moversOut").textContent = t.movers(R.movers);
+  const nat = document.getElementById("national"), sub = document.getElementById("nationalSub");
+  const peak = Math.max(...Object.values(DATA.national.series));
+  const peakY = Object.keys(DATA.national.series).find(y => DATA.national.series[y] === peak);
+  if (R.nat.year === "same") { nat.textContent = t.natSame; sub.textContent = state.scen === "A" ? "" : t.natSubSame; }
+  else if (R.nat.year === "record") { nat.textContent = t.natRecord(R.nat.pop); sub.textContent = t.natSubRecord(peak, peakY); }
+  else { nat.textContent = t.natBack(R.nat.pop, R.nat.year); sub.textContent = ""; }
+  renderPanel(R);
+}
+
+function select(code) { state.sel = +code; update(); }
+
+function setLang(lang) {
+  state.lang = lang;
+  document.documentElement.lang = lang;
+  document.body.classList.toggle("ja", lang === "ja");
+  document.querySelectorAll("[data-lang]").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === lang));
+  const t = T[lang];
+  document.querySelectorAll("[data-t]").forEach(e => { const v = t[e.dataset.t]; if (typeof v === "string") e.textContent = v; });
+  document.getElementById("mapTitle").textContent = t.title;
+  const ul = document.getElementById("notes"); ul.innerHTML = "";
+  t.notes.forEach(n => { const li = document.createElement("li"); li.textContent = n; ul.appendChild(li); });
+  const su = document.getElementById("sources"); su.innerHTML = "";
+  t.sources.forEach(n => { const li = document.createElement("li"); li.textContent = n; su.appendChild(li); });
+  // legend
+  const lg = document.getElementById("legend"); lg.innerHTML = "";
+  const tt = document.createElement("span"); tt.className = "t"; tt.textContent = t.legendT; lg.appendChild(tt);
+  ["2015", "2005", "1980", "lt1980", "new", "none"].forEach(k => {
+    const sp = document.createElement("span");
+    const sw = el("svg", { viewBox: "0 0 34 16" });
+    const defs = el("defs", {}, sw); patterns(defs);
+    // pattern ids must be unique per document: reuse map patterns instead
+    sw.removeChild(defs);
+    el("rect", { width: 34, height: 16, fill: FILL[k] }, sw);
+    sp.appendChild(sw);
+    sp.append(t.legend[k]);
+    lg.appendChild(sp);
+  });
+  update();
+}
+
+// ------------------------------------------------------------- init
+document.querySelectorAll("[data-lang]").forEach(b => b.addEventListener("click", () => setLang(b.dataset.lang)));
+document.querySelectorAll("#scenarios button").forEach(b => b.addEventListener("click", () => {
+  state.scen = b.dataset.s;
+  document.querySelectorAll("#scenarios button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  update();
+}));
+window.addEventListener("resize", () => { if (DATA) update(); });
+document.getElementById("rate").addEventListener("input", e => { state.rate = e.target.value / 100; update(); });
+
+Promise.all([fetch("data/akiya.json").then(r => r.json()), fetch("data/prefectures.geojson").then(r => r.json())])
+  .then(([d, g]) => {
+    DATA = d; GEO = g;
+    DATA.prefs.forEach(p => byCode[p.code] = p);
+    buildMap();
+    let lang = "en";
+    try { const q = new URLSearchParams(location.search).get("lang"); if (q === "ja" || (!q && navigator.language.startsWith("ja"))) lang = "ja"; } catch (e) {}
+    setLang(lang);
+  });
+})();
+</script>
 </body>
 </html>
