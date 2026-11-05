@@ -10,8 +10,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
 <style>
-  :root { --paper: #f4f1ea; --ink: #000; --mute: #555; }
+  :root { --paper: #f4f1ea; --ink: #000; --up: #1f8a4c; --down: #c8312a; }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
   body {
@@ -20,15 +26,15 @@
     font-size: 17px; line-height: 1.5;
   }
   body.ja { font-family: "Noto Serif JP", "Source Serif 4", serif; font-size: 16px; }
-  main { max-width: 1120px; margin: 0 auto; padding: 28px 16px 64px; }
+  main { max-width: 1180px; margin: 0 auto; padding: 28px 16px 64px; }
   .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
   .lang { white-space: nowrap; }
   h1 { font-size: clamp(1.5rem, 3.4vw, 2.3rem); line-height: 1.15; font-weight: 600; margin: 0 0 .35rem; max-width: 22em; }
   .sub { margin: 0; }
   .tag { font-style: italic; margin: .4rem 0 0; font-size: .92rem; }
-  .rule { border: 0; border-top: 3px double var(--ink); margin: 18px 0 18px; }
+  .rule { border: 0; border-top: 3px double var(--ink); margin: 18px 0; }
   button { font: inherit; color: var(--ink); background: none; cursor: pointer; }
-  .lang button { border: 0; padding: 2px 4px; text-decoration: none; }
+  .lang button { border: 0; padding: 2px 4px; }
   .lang button[aria-pressed="true"] { text-decoration: underline; text-underline-offset: 3px; font-weight: 600; }
   .controls { display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: flex-end; margin-bottom: 8px; }
   .seg { display: flex; border: 1px solid var(--ink); }
@@ -38,32 +44,34 @@
   .seg small { display: block; font-size: .72rem; font-style: italic; opacity: .85; }
   .slider label { display: block; font-size: .9rem; }
   .slider output { font-weight: 600; font-variant-numeric: tabular-nums; }
-  input[type=range] { width: 260px; max-width: 70vw; accent-color: #000; }
+  input[type=range] { width: 300px; max-width: 80vw; accent-color: #000; }
   .national { font-style: italic; font-size: clamp(1.25rem, 2.6vw, 1.7rem); margin: 10px 0 2px; }
   .national-sub { font-size: .9rem; margin: 0 0 10px; min-height: 1.4em; }
-  .grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 20px; align-items: start; }
-  .map svg { width: 100%; height: auto; display: block; touch-action: manipulation; }
-  .map path.pref { stroke: #000; stroke-width: .45; cursor: pointer; }
-  .map path.pref.c-new { stroke: var(--paper); stroke-width: .35; }
-  .map path.pref:focus { outline: none; }
-  .map .sel { fill: none; stroke: #000; stroke-width: 2.4; pointer-events: none; }
-  .map .sel-halo { fill: none; stroke: var(--paper); stroke-width: 5; pointer-events: none; }
-  .map text { font-family: inherit; paint-order: stroke; stroke: var(--paper); stroke-width: 4px; stroke-linejoin: round; pointer-events: none; }
-  .map .lead { stroke: #000; stroke-width: .7; }
-  .hint { font-size: .85rem; font-style: italic; margin: 4px 0 0; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  .stage { position: relative; height: min(78vh, 760px); min-height: 420px; border: 1px solid var(--ink); background: var(--paper); overflow: hidden; }
+  .stage canvas { display: block; touch-action: none; }
+  .stage .css2d { position: absolute; inset: 0; pointer-events: none; }
+  .yl { font-size: 12px; font-variant-numeric: tabular-nums; color: #333; white-space: nowrap; transform: translateX(-4px); }
+  .yl.on { color: #000; font-weight: 600; }
+  .yl.now { color: #000; font-weight: 600; font-size: 13px; }
+  .pl { font-size: 12.5px; white-space: nowrap; background: rgba(244,241,234,.9); padding: 0 4px; border: 1px solid #000; }
+  .pl.sel { background: #000; color: var(--paper); }
+  .reset { position: absolute; right: 8px; top: 8px; font-size: .8rem; border: 1px solid #000; background: var(--paper); padding: 2px 8px; }
+  .hint { font-size: .85rem; font-style: italic; margin: 6px 0 0; }
+  .legend { display: grid; gap: 4px; margin: 12px 0 0; font-size: .88rem; }
+  .legend .t { font-weight: 600; }
+  .legend span { display: flex; gap: 8px; align-items: baseline; }
+  .legend i { flex: none; display: inline-block; width: 26px; height: 12px; border: 1px solid #000; transform: translateY(1px); }
   .panel { border-top: 1px solid var(--ink); padding-top: 10px; }
   .panel h2 { margin: 0; font-size: 1.5rem; font-weight: 600; }
   .panel .alt { margin: 0 0 6px; font-size: .95rem; }
   .big { font-size: 2.6rem; line-height: 1.05; margin: 8px 0 4px; font-style: italic; }
   .big small { font-size: 1rem; font-style: normal; display: block; margin-bottom: 2px; }
+  .big.up { color: var(--up); } .big.down { color: var(--down); } .big small { color: #000; }
   dl { display: grid; grid-template-columns: auto auto; gap: 2px 14px; margin: 10px 0; font-size: .92rem; }
   dt { margin: 0; } dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
   .chart svg { width: 100%; height: auto; display: block; }
   .chart text { font-family: inherit; font-size: 11px; }
-  .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 14px 0 0; font-size: .88rem; align-items: center; }
-  .legend .t { font-weight: 600; width: 100%; }
-  .legend span { display: inline-flex; align-items: center; gap: 6px; }
-  .legend svg { width: 34px; height: 16px; border: 1px solid var(--ink); display: block; }
   h3 { font-size: 1.1rem; font-weight: 600; margin: 2rem 0 .5rem; }
   .notes { columns: 2 320px; column-gap: 32px; font-size: .9rem; padding-left: 1.1rem; margin: 0; }
   .notes li { break-inside: avoid; margin-bottom: .4rem; }
@@ -72,14 +80,18 @@
   .posters figure { margin: 0; } .posters figcaption { font-size: .85rem; font-style: italic; margin-top: 4px; }
   .small { font-size: .88rem; }
   a { color: var(--ink); }
-  [hidden] { display: none !important; }
-  @media (max-width: 760px) {
+  .nogl { padding: 24px; }
+  @media (max-width: 860px) {
     .grid { grid-template-columns: 1fr; }
     .posters { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
     .top { flex-direction: column-reverse; gap: 4px; }
     .lang { align-self: flex-end; }
     .seg button { padding: 6px 8px; font-size: .9rem; flex: 1; }
     .big { font-size: 2.1rem; }
+    .stage { height: 64vh; min-height: 380px; }
+    .yl { font-size: 10.5px; } .pl { font-size: 11px; }
   }
 </style>
 </head>
@@ -118,8 +130,8 @@
   <p class="national-sub" id="nationalSub"></p>
 
   <div class="grid">
-    <div class="map">
-      <svg id="map" role="img" aria-labelledby="mapTitle"><title id="mapTitle">Map</title></svg>
+    <div>
+      <div class="stage" id="stage"><button type="button" class="reset" id="reset">&#8634;</button></div>
       <p class="hint" data-t="hint"></p>
       <div class="legend" id="legend"></div>
     </div>
@@ -144,9 +156,10 @@
   <p class="small"><span data-t="repo"></span> <a href="https://github.com/shinyanakashima/30daymapchallenge-2026day8-akiya">github.com/shinyanakashima/30daymapchallenge-2026day8-akiya</a></p>
 </main>
 
-<script>
-(() => {
-"use strict";
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { CSS2DRenderer, CSS2DObject } from "three/addons/renderers/CSS2DRenderer.js";
 
 const T = {
   en: {
@@ -158,14 +171,15 @@ const T = {
     C: "C  From the big cities", Csub: "six prefectures, by population",
     rate: "Share of akiya lived in:",
     movers: n => `${fmtM(n)} people move in`,
-    hint: "Tap or click a prefecture. Use the slider to change how many akiya are lived in.",
+    hint: "Drag to turn, scroll or pinch to zoom. Click or tap a prefecture for details.",
     natRecord: (p) => `Japan: ${fmtM(p)} people, a new record`,
     natBack: (p, y) => `Japan: back to ${y} (${fmtM(p)} people)`,
     natSame: "Japan: no change",
     natSubRecord: (pk, y) => `Above the ${y} census peak of ${fmtM(pk)}.`,
     natSubSame: "People only move within Japan.",
-    legendT: "Population returns to the level of",
-    legend: { "2015": "2015–2020", "2005": "2005–2010", "1980": "1980–2000", "lt1980": "Before 1980", "new": "New record", "none": "No change" },
+    legendT: "How to read",
+    legend: { up: "Gains people: rises to the layer of the census year its population goes back to.", down: "Loses people: rises to the last census year with that few people.", rec: "Below today: more people than at any census (new record).", same: "No change: stays on today\u2019s layer." },
+    today: "Today (2025)", recLayer: "New record",
     name: p => p.en, alt: p => p.ja,
     backTo: "Back to", record: "New record", recordSub: "above every census since 1920", low: "Record low", same: "No change",
     rows: { akiya: "Akiya (2023)", pph: "People per household (2020)", pop2025: "Population 2025", move: "Moving in", out: "Moving out", newPop: "Population after the move" },
@@ -202,14 +216,15 @@ const T = {
     C: "C  大都市から", Csub: "6都府県から人口比で",
     rate: "空き家に人が住む割合：",
     movers: n => `${fmtJ(n)}が移住`,
-    hint: "都道府県をクリック（タップ）すると詳しく表示します。スライダーで住む割合を変えられます。",
+    hint: "ドラッグで回転、ホイールやピンチで拡大・縮小。都道府県をクリック（タップ）すると詳しく表示します。",
     natRecord: (p) => `日本全体：${fmtJ(p)}、過去最多`,
     natBack: (p, y) => `日本全体：${y}年の水準（${fmtJ(p)}）`,
     natSame: "日本全体：変わらない",
     natSubRecord: (pk, y) => `${y}年の国勢調査（${fmtJ(pk)}）を上回る。`,
     natSubSame: "国内での移動のみ。",
-    legendT: "人口が戻る年",
-    legend: { "2015": "2015–2020年", "2005": "2005–2010年", "1980": "1980–2000年", "lt1980": "1980年より前", "new": "過去最多を更新", "none": "変わらない" },
+    legendT: "見方",
+    legend: { up: "人が増える県：人口が戻る国勢調査の年の層まで上がる。", down: "人が減る都府県：その人口まで少なかった最後の年の層まで上がる。", rec: "現在より下：どの国勢調査よりも多い（過去最多）。", same: "変わらない：現在の層にとどまる。" },
+    today: "現在（2025年）", recLayer: "過去最多",
     name: p => p.ja, alt: p => p.en,
     backTo: "戻る年", record: "過去最多", recordSub: "1920年以降のどの国勢調査より多い", low: "過去最少", same: "変わらない",
     rows: { akiya: "空き家（2023年）", pph: "1世帯当たり人員（2020年）", pop2025: "2025年の人口", move: "移住してくる人", out: "出ていく人", newPop: "移動後の人口" },
@@ -252,7 +267,7 @@ function fmtJ(n) {
 const fmtN = (n, lang) => Math.round(n).toLocaleString(lang === "ja" ? "ja" : "en");
 
 const state = { lang: "en", scen: "A", rate: 1, sel: 5 };
-let DATA, GEO, byCode = {};
+let DATA, GEO, COAST, byCode = {};
 
 // ------------------------------------------------------------- model
 function compute() {
@@ -301,7 +316,235 @@ function cls(y) {
   return y >= 2015 ? "2015" : y >= 2005 ? "2005" : y >= 1980 ? "1980" : "lt1980";
 }
 
-// ------------------------------------------------------------- map
+// ------------------------------------------------------------- 3D scene
+// Layers: today (2025) at the bottom, older census years stacked above,
+// "new record" just below today. Each prefecture is a thin slab that
+// moves to the layer of its return year.
+const STEP = 4;            // height per 5 years
+const yOfYear = y => (2025 - y) / 5 * STEP;
+const Y_RECORD = -STEP * 1.6;
+const C_UP = new THREE.Color("#1f8a4c"), C_DOWN = new THREE.Color("#c8312a"), C_SAME = new THREE.Color("#fbfaf6");
+let renderer, labelRenderer, scene, camera, controls, stage;
+const meshes = {}, stalks = {}, plabels = {}, yearLabels = {};
+let S, X0, Z0, raycaster = new THREE.Raycaster(), pointer = new THREE.Vector2(), lastR = null;
+
+function toXZ([x, y]) { return [(x - X0) * S, -(y - Z0) * S]; }
+
+function buildScene() {
+  stage = document.getElementById("stage");
+  const w = stage.clientWidth, h = stage.clientHeight;
+  try {
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+  } catch (e) {
+    stage.insertAdjacentHTML("beforeend", '<p class="nogl">WebGL is not available. See the poster images below.</p>');
+    return false;
+  }
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setSize(w, h);
+  renderer.setClearColor(0xf4f1ea);
+  stage.appendChild(renderer.domElement);
+  labelRenderer = new CSS2DRenderer();
+  labelRenderer.setSize(w, h);
+  labelRenderer.domElement.className = "css2d";
+  stage.appendChild(labelRenderer.domElement);
+
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(32, w / h, 1, 2000);
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.maxPolarAngle = Math.PI * 0.49;
+  controls.minDistance = 60; controls.maxDistance = 600;
+
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xd9d3c4, 2.2));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.3); sun.position.set(-60, 120, 80); scene.add(sun);
+
+  // projection: frame -> about 100 units wide
+  const [x0, y0, x1, y1] = DATA.frame;
+  S = 100 / (x1 - x0); X0 = (x0 + x1) / 2; Z0 = (y0 + y1) / 2;
+
+  // shapes
+  const shapesOf = f => {
+    const polys = f.geometry.type === "Polygon" ? [f.geometry.coordinates] : f.geometry.coordinates;
+    return polys.map(poly => {
+      const sh = new THREE.Shape(poly[0].map(c => { const [x, z] = toXZ(c); return new THREE.Vector2(x, -z); }));
+      poly.slice(1).forEach(h => sh.holes.push(new THREE.Path(h.map(c => { const [x, z] = toXZ(c); return new THREE.Vector2(x, -z); }))));
+      return sh;
+    });
+  };
+  // outline of all prefectures, reused on every layer
+  const linePts = [];
+  GEO.features.forEach(f => {
+    const polys = f.geometry.type === "Polygon" ? [f.geometry.coordinates] : f.geometry.coordinates;
+    polys.forEach(poly => poly.forEach(ring => {
+      for (let i = 0; i < ring.length - 1; i++) {
+        const [ax, az] = toXZ(ring[i]), [bx, bz] = toXZ(ring[i + 1]);
+        linePts.push(ax, 0, az, bx, 0, bz);
+      }
+    }));
+  });
+  const outlineGeo = new THREE.BufferGeometry();
+  outlineGeo.setAttribute("position", new THREE.Float32BufferAttribute(linePts, 3));
+  const coastPts = [];
+  COAST.forEach(ln => { for (let i = 0; i < ln.length - 1; i++) { const [ax, az] = toXZ(ln[i]), [bx, bz] = toXZ(ln[i + 1]); coastPts.push(ax, 0, az, bx, 0, bz); } });
+  const coastGeo = new THREE.BufferGeometry();
+  coastGeo.setAttribute("position", new THREE.Float32BufferAttribute(coastPts, 3));
+
+  // the year ruler stands in the Pacific, east of the Kanto region
+  const corner = toXZ([620000, -380000]);
+  const ruler = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(corner[0], Y_RECORD, corner[1]), new THREE.Vector3(corner[0], yOfYear(1920), corner[1])]),
+    new THREE.LineBasicMaterial({ color: 0x000000 }));
+  scene.add(ruler);
+  DATA.years.forEach(yr => addLayer(coastGeo, yOfYear(yr), yr, corner));
+  addLayer(outlineGeo, 0, 2025, corner);
+  addLayer(coastGeo, Y_RECORD, "record", corner);
+
+  // prefecture slabs
+  GEO.features.forEach(f => {
+    const code = f.properties.code;
+    const geo = new THREE.ExtrudeGeometry(shapesOf(f), { depth: 0.9, bevelEnabled: false });
+    geo.rotateX(-Math.PI / 2);
+    const mat = new THREE.MeshStandardMaterial({ color: C_SAME, roughness: .85, metalness: 0 });
+    const m = new THREE.Mesh(geo, mat);
+    m.userData = { code, y: 0, target: 0 };
+    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 30), new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: .55 }));
+    m.add(edges);
+    scene.add(m);
+    meshes[code] = m;
+    // stalk from today's layer to the slab
+    const c = toXZ(DATA.centers[code]);
+    const sg = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(c[0], 0, c[1]), new THREE.Vector3(c[0], 0, c[1])]);
+    const st = new THREE.Line(sg, new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: .45 }));
+    scene.add(st);
+    stalks[code] = { line: st, x: c[0], z: c[1] };
+    // label (key prefectures always, others when selected)
+    const div = document.createElement("div"); div.className = "pl";
+    const lab = new CSS2DObject(div); lab.center.set(0.5, 1.4);
+    lab.position.set(c[0], 0, c[1]);
+    scene.add(lab);
+    plabels[code] = lab;
+  });
+
+  setCamera();
+  document.getElementById("reset").addEventListener("click", setCamera);
+  addEventListener("resize", onResize);
+  renderer.domElement.addEventListener("pointermove", e => pick(e, false));
+  let down = null;
+  renderer.domElement.addEventListener("pointerdown", e => { down = [e.clientX, e.clientY]; });
+  renderer.domElement.addEventListener("pointerup", e => {
+    if (down && Math.hypot(e.clientX - down[0], e.clientY - down[1]) < 6) pick(e, true);
+    down = null;
+  });
+  animate();
+  return true;
+}
+
+function addLayer(geo, y, yr, corner) {
+  const mat = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: yr === 2025 ? .8 : .16 });
+  const lines = new THREE.LineSegments(geo, mat);
+  lines.position.y = y;
+  scene.add(lines);
+  // tick on the year ruler
+  const tk = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(corner[0], y, corner[1]), new THREE.Vector3(corner[0] + 2.2, y, corner[1])]),
+    new THREE.LineBasicMaterial({ color: 0x000000 }));
+  scene.add(tk);
+  if (yr === 2025 || yr === "record") {
+    const plane = new THREE.Mesh(new THREE.PlaneGeometry(108, 118), new THREE.MeshBasicMaterial({
+      color: yr === 2025 ? 0xe4dfd2 : 0xf0ebe0, transparent: true, opacity: yr === 2025 ? .45 : .3, side: THREE.DoubleSide, depthWrite: false }));
+    plane.rotation.x = -Math.PI / 2; plane.position.set(0, y - 0.05, -2);
+    scene.add(plane);
+  }
+  const div = document.createElement("div");
+  div.className = "yl" + (yr === 2025 ? " now" : "");
+  const lab = new CSS2DObject(div);
+  lab.center.set(0, 0.5);
+  lab.position.set(corner[0] + 3, y, corner[1]);
+  scene.add(lab);
+  yearLabels[yr] = { lab, div, mat };
+}
+
+function setCamera() {
+  const mid = yOfYear(1980);
+  const k = Math.max(1, 1.05 / camera.aspect);
+  controls.target.set(-4, mid - 4, 0);
+  camera.position.set(-4 + 154 * k, mid - 4 + 74 * k, 235 * k);
+  controls.update();
+}
+
+function onResize() {
+  if (!renderer) return;
+  const w = stage.clientWidth, h = stage.clientHeight;
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+  renderer.setSize(w, h); labelRenderer.setSize(w, h);
+}
+
+function pick(e, click) {
+  const r = renderer.domElement.getBoundingClientRect();
+  pointer.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  raycaster.setFromCamera(pointer, camera);
+  const hit = raycaster.intersectObjects(Object.values(meshes), false)[0];
+  renderer.domElement.style.cursor = hit ? "pointer" : "grab";
+  if (hit && (click || (e.pointerType === "mouse" && matchMedia("(hover: hover)").matches))) {
+    if (hit.object.userData.code !== state.sel) select(hit.object.userData.code);
+  }
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  for (const c in meshes) {
+    const m = meshes[c], u = m.userData;
+    u.y += (u.target - u.y) * 0.09;
+    if (Math.abs(u.target - u.y) < 0.002) u.y = u.target;
+    m.position.y = u.y;
+    const s = stalks[c], pos = s.line.geometry.attributes.position;
+    pos.setY(1, u.y); pos.needsUpdate = true;
+    s.line.visible = Math.abs(u.y) > 0.3;
+    plabels[c].position.y = u.y + 0.9;
+  }
+  controls.update();
+  renderer.render(scene, camera);
+  labelRenderer.render(scene, camera);
+}
+
+const KEY = [1, 5, 13, 27, 46];
+
+function updateScene(R) {
+  if (!renderer) return;
+  const t = T[state.lang];
+  const used = {};
+  for (const c in meshes) {
+    const r = R.res[c], m = meshes[c];
+    let target = 0, color = C_SAME;
+    if (typeof r.year === "number") { target = yOfYear(r.year); }
+    else if (r.year === "record") { target = Y_RECORD; }
+    else if (r.year === "low") { target = yOfYear(1920); }
+    const nowPop = byCode[c].pop2025;
+    if (r.pop > nowPop) color = C_UP; else if (r.pop < nowPop) color = C_DOWN;
+    m.userData.target = target;
+    m.material.color.copy(color);
+    m.material.emissive = new THREE.Color(+c === state.sel ? 0x222222 : 0x000000);
+    used[typeof r.year === "number" ? r.year : r.year === "record" ? "record" : 2025] = true;
+    // labels
+    const p = byCode[c], lab = plabels[c];
+    const show = KEY.includes(+c) || +c === state.sel;
+    lab.visible = show;
+    lab.element.className = "pl" + (+c === state.sel ? " sel" : "");
+    if (show) {
+      const yr = r.year;
+      const v = yr === "record" ? t.record : yr === "same" ? t.same : yr === "low" ? t.low : (state.lang === "ja" ? yr + "年" : yr);
+      lab.element.textContent = `${state.lang === "ja" ? p.ja.replace(/[都府県]$/, "") : p.en} ${v}`;
+    }
+  }
+  for (const k in yearLabels) {
+    const { div, mat } = yearLabels[k];
+    if (+k !== 2025) mat.opacity = used[k] ? .45 : .14;
+    div.textContent = k === "record" ? t.recLayer : (+k === 2025 ? t.today : (state.lang === "ja" ? k + "年" : k));
+    div.classList.toggle("on", !!used[k]);
+  }
+}
+
+// ------------------------------------------------------------- panel
 const NS = "http://www.w3.org/2000/svg";
 const el = (tag, attrs = {}, parent) => {
   const e = document.createElementNS(NS, tag);
@@ -309,73 +552,6 @@ const el = (tag, attrs = {}, parent) => {
   if (parent) parent.appendChild(e);
   return e;
 };
-let proj, svg, paths = {}, selLayer, labelLayer;
-
-function patterns(defs, scale = 1) {
-  const mk = (id, size, angle, cross, w) => {
-    const p = el("pattern", { id, width: size, height: size, patternUnits: "userSpaceOnUse", patternTransform: `rotate(${angle})` }, defs);
-    el("rect", { width: size, height: size, fill: "#f4f1ea" }, p);
-    el("line", { x1: 0, y1: 0, x2: 0, y2: size, stroke: "#000", "stroke-width": w }, p);
-    if (cross) el("line", { x1: 0, y1: 0, x2: size, y2: 0, stroke: "#000", "stroke-width": w }, p);
-  };
-  mk("h2015", 7 * scale, 45, false, 1 * scale);
-  mk("h2005", 4.6 * scale, -45, false, 1 * scale);
-  mk("h1980", 6 * scale, 45, true, .9 * scale);
-  mk("hlt1980", 3.4 * scale, 45, true, .9 * scale);
-}
-const FILL = { "2015": "url(#h2015)", "2005": "url(#h2005)", "1980": "url(#h1980)", "lt1980": "url(#hlt1980)", "new": "#000", "none": "#f4f1ea" };
-
-function buildMap() {
-  const [x0, y0, x1, y1] = DATA.frame;
-  const W = 760, s = W / (x1 - x0), H = Math.round((y1 - y0) * s);
-  proj = ([x, y]) => [(x - x0) * s, (y1 - y) * s];
-  svg = document.getElementById("map");
-  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-  const defs = el("defs", {}, svg);
-  patterns(defs);
-  const g = el("g", {}, svg);
-  const ring = r => "M" + r.map(c => proj(c).map(v => v.toFixed(1)).join(",")).join("L") + "Z";
-  GEO.features.forEach(f => {
-    const code = f.properties.code;
-    const polys = f.geometry.type === "Polygon" ? [f.geometry.coordinates] : f.geometry.coordinates;
-    const d = polys.map(poly => poly.map(ring).join("")).join("");
-    const p = el("path", { d, class: "pref", tabindex: 0, role: "button" }, g);
-    p.addEventListener("click", () => select(code));
-    p.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(code); } });
-    p.addEventListener("mouseenter", () => { if (matchMedia("(hover: hover)").matches) select(code); });
-    paths[code] = p;
-  });
-  // inset frame
-  const [ix0, iy0, ix1, iy1] = DATA.inset, pad = 22000;
-  const a = proj([ix0 - pad, iy1 + pad]), b = proj([ix1 + pad, iy0 - pad]);
-  el("rect", { x: a[0], y: a[1], width: b[0] - a[0], height: b[1] - a[1], fill: "none", stroke: "#000", "stroke-width": .7 }, svg);
-  const it = el("text", { x: a[0] + 6, y: b[1] - 8, "font-style": "italic", "font-size": 15 }, svg);
-  it.dataset.t = "okinawa";
-  selLayer = el("g", {}, svg);
-  labelLayer = el("g", {}, svg);
-}
-
-const LABEL_OFF = { 1: [-110, -20, "end"], 5: [-70, 4, "end"], 13: [60, 26, "start"], 27: [-60, -48, "end"], 46: [62, -16, "start"] };
-
-function drawLabels(R) {
-  labelLayer.innerHTML = "";
-  const t = T[state.lang];
-  const k = 760 / Math.max(svg.clientWidth || 760, 300);
-  labelLayer.setAttribute("font-size", Math.max(14, 11.5 * k).toFixed(1));
-  for (const c in DATA.anchors) {
-    const [x, y] = proj(DATA.anchors[c]);
-    const [dx, dy, anchor] = LABEL_OFF[c];
-    const p = byCode[c];
-    const yr = R.res[c].year;
-    const v = yr === "record" ? t.record : yr === "same" ? t.same : yr === "low" ? t.low : (state.lang === "ja" ? yr + "年" : yr);
-    el("line", { x1: x, y1: y, x2: x + dx * .9, y2: y + dy, class: "lead" }, labelLayer);
-    el("circle", { cx: x, cy: y, r: 2.6, fill: "#000", stroke: "#f4f1ea", "stroke-width": 1 }, labelLayer);
-    const tx = el("text", { x: x + dx, y: y + dy + 4, "text-anchor": anchor }, labelLayer);
-    tx.textContent = `${state.lang === "ja" ? p.ja.replace(/[都府県]$/, "") : p.en} ${v}`;
-  }
-}
-
-// ------------------------------------------------------------- panel
 function chart(p, r) {
   const W = 420, H = 230, m = { l: 52, r: 14, t: 16, b: 26 };
   const ys = DATA.years.filter(y => p.series[y] != null);
@@ -427,7 +603,8 @@ function renderPanel(R) {
   panel.innerHTML = "";
   const h = document.createElement("h2"); h.textContent = t.name(p); panel.appendChild(h);
   const a = document.createElement("p"); a.className = "alt"; a.textContent = t.alt(p); panel.appendChild(a);
-  const big = document.createElement("p"); big.className = "big";
+  const big = document.createElement("p");
+  big.className = "big" + (r.pop > p.pop2025 ? " up" : r.pop < p.pop2025 ? " down" : "");
   const lab = document.createElement("small");
   if (typeof r.year === "number") { lab.textContent = t.backTo; big.append(lab, state.lang === "ja" ? `${r.year}年` : String(r.year)); }
   else if (r.year === "record") { lab.textContent = t.recordSub; big.append(t.record); big.appendChild(lab); lab.style.marginTop = "4px"; }
@@ -454,18 +631,7 @@ function renderPanel(R) {
 function update() {
   const t = T[state.lang];
   const R = compute();
-  for (const c in paths) {
-    const k = cls(R.res[c].year);
-    paths[c].setAttribute("fill", FILL[k]);
-    paths[c].setAttribute("class", "pref" + (k === "new" ? " c-new" : ""));
-    const p = byCode[c], y = R.res[c].year;
-    paths[c].setAttribute("aria-label", `${t.name(p)}: ${y === "record" ? t.record : y === "same" ? t.same : y === "low" ? t.low : y}`);
-  }
-  selLayer.innerHTML = "";
-  const d = paths[state.sel].getAttribute("d");
-  el("path", { d, class: "sel-halo" }, selLayer);
-  el("path", { d, class: "sel" }, selLayer);
-  drawLabels(R);
+  updateScene(R);
   document.getElementById("rateOut").textContent = Math.round(state.rate * 100) + "%";
   document.getElementById("moversOut").textContent = t.movers(R.movers);
   const nat = document.getElementById("national"), sub = document.getElementById("nationalSub");
@@ -486,48 +652,34 @@ function setLang(lang) {
   document.querySelectorAll("[data-lang]").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === lang));
   const t = T[lang];
   document.querySelectorAll("[data-t]").forEach(e => { const v = t[e.dataset.t]; if (typeof v === "string") e.textContent = v; });
-  document.getElementById("mapTitle").textContent = t.title;
-  const ul = document.getElementById("notes"); ul.innerHTML = "";
-  t.notes.forEach(n => { const li = document.createElement("li"); li.textContent = n; ul.appendChild(li); });
-  const su = document.getElementById("sources"); su.innerHTML = "";
-  t.sources.forEach(n => { const li = document.createElement("li"); li.textContent = n; su.appendChild(li); });
-  // legend
+  const fill = (id, arr) => { const ul = document.getElementById(id); ul.innerHTML = ""; arr.forEach(n => { const li = document.createElement("li"); li.textContent = n; ul.appendChild(li); }); };
+  fill("notes", t.notes); fill("sources", t.sources);
   const lg = document.getElementById("legend"); lg.innerHTML = "";
   const tt = document.createElement("span"); tt.className = "t"; tt.textContent = t.legendT; lg.appendChild(tt);
-  ["2015", "2005", "1980", "lt1980", "new", "none"].forEach(k => {
-    const sp = document.createElement("span");
-    const sw = el("svg", { viewBox: "0 0 34 16" });
-    const defs = el("defs", {}, sw); patterns(defs);
-    // pattern ids must be unique per document: reuse map patterns instead
-    sw.removeChild(defs);
-    el("rect", { width: 34, height: 16, fill: FILL[k] }, sw);
-    sp.appendChild(sw);
-    sp.append(t.legend[k]);
-    lg.appendChild(sp);
+  [["up", "#1f8a4c"], ["down", "#c8312a"], ["rec", "linear-gradient(#f0ebe0,#f0ebe0)"], ["same", "#fbfaf6"]].forEach(([k, c]) => {
+    const sp = document.createElement("span"); const i = document.createElement("i"); i.style.background = c;
+    sp.append(i, t.legend[k]); lg.appendChild(sp);
   });
   update();
 }
 
-// ------------------------------------------------------------- init
 document.querySelectorAll("[data-lang]").forEach(b => b.addEventListener("click", () => setLang(b.dataset.lang)));
 document.querySelectorAll("#scenarios button").forEach(b => b.addEventListener("click", () => {
   state.scen = b.dataset.s;
   document.querySelectorAll("#scenarios button").forEach(x => x.setAttribute("aria-pressed", x === b));
   update();
 }));
-window.addEventListener("resize", () => { if (DATA) update(); });
 document.getElementById("rate").addEventListener("input", e => { state.rate = e.target.value / 100; update(); });
 
-Promise.all([fetch("data/akiya.json").then(r => r.json()), fetch("data/prefectures.geojson").then(r => r.json())])
-  .then(([d, g]) => {
-    DATA = d; GEO = g;
+Promise.all(["data/akiya.json", "data/prefectures.geojson", "data/coast.json"].map(u => fetch(u).then(r => r.json())))
+  .then(([d, g, c]) => {
+    DATA = d; GEO = g; COAST = c;
     DATA.prefs.forEach(p => byCode[p.code] = p);
-    buildMap();
+    buildScene();
     let lang = "en";
     try { const q = new URLSearchParams(location.search).get("lang"); if (q === "ja" || (!q && navigator.language.startsWith("ja"))) lang = "ja"; } catch (e) {}
     setLang(lang);
   });
-})();
 </script>
 </body>
 </html>

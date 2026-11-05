@@ -24,9 +24,20 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     g, inset = load()
     g = g[["code", "geometry"]].copy()
+    centers = {}
+    for _, r in g.iterrows():
+        geom = r.geometry
+        main = max(geom.geoms, key=lambda x: x.area) if geom.geom_type == "MultiPolygon" else geom
+        c = main.representative_point()
+        centers[str(int(r["code"]))] = [round(c.x), round(c.y)]
     g["geometry"] = g.geometry.simplify(1200, preserve_topology=True)
     g["geometry"] = g.geometry.set_precision(100)
     (OUT / "prefectures.geojson").write_text(g.to_json(drop_id=True), encoding="utf-8")
+    # coastline of Japan (with the Okinawa inset), drawn on every year layer
+    coast = g.union_all().buffer(0).simplify(2500).boundary
+    lines = list(coast.geoms) if hasattr(coast, "geoms") else [coast]
+    lines = [[[round(x), round(y)] for x, y in ln.coords] for ln in lines if ln.length > 20000]
+    (OUT / "coast.json").write_text(json.dumps(lines, separators=(",", ":")), encoding="utf-8")
 
     inp = pd.read_csv(ROOT / "data" / "inputs.csv")
     nat = pd.read_csv(ROOT / "data" / "national.csv").set_index("scenario")
@@ -50,6 +61,7 @@ def main():
         "tokyo": 13,
         "inset": [round(v) for v in inset],
         "frame": list(FRAME),
+        "centers": centers,
         # label anchors (map metres) for a few prefectures
         "anchors": {str(c): [round(v) for v in pt(*ll)] for c, ll in {
             1: (142.6, 43.5), 5: (140.3, 39.7), 13: (139.45, 35.72),
