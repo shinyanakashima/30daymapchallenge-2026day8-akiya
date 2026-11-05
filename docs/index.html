@@ -90,7 +90,7 @@
     .lang { align-self: flex-end; }
     .seg button { padding: 6px 8px; font-size: .9rem; flex: 1; }
     .big { font-size: 2.1rem; }
-    .stage { height: 64vh; min-height: 380px; }
+    .stage { height: 58vh; min-height: 380px; }
     .yl { font-size: 10.5px; } .pl { font-size: 11px; }
   }
 </style>
@@ -466,7 +466,7 @@ function addLayer(geo, y, yr, corner) {
 
 function setCamera() {
   const mid = yOfYear(1980);
-  const k = Math.max(1, 1.05 / camera.aspect);
+  const k = Math.max(1, 0.8 / camera.aspect);
   controls.target.set(-4, mid - 4, 0);
   camera.position.set(-4 + 154 * k, mid - 4 + 74 * k, 235 * k);
   controls.update();
