@@ -6,7 +6,10 @@
 <title>Akiya and the Year Back</title>
 <meta name="description" content="If people moved into Japan's akiya, what year would each place go back to? #30DayMapChallenge 2026 Day 8: Utopia.">
 <meta property="og:title" content="If people moved into Japan's akiya, what year would each place go back to?">
-<meta property="og:image" content="https://shinyanakashima.github.io/30daymapchallenge-2026day8-akiya/day8-akiya-en.png">
+<meta property="og:image" content="https://shinyanakashima.github.io/30daymapchallenge-2026day8-akiya/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
@@ -100,17 +103,13 @@
   h3 { font-size: 1.1rem; font-weight: 600; margin: 2rem 0 .5rem; }
   .notes { columns: 2 320px; column-gap: 32px; font-size: .9rem; padding-left: 1.1rem; margin: 0; }
   .notes li { break-inside: avoid; margin-bottom: .4rem; }
-  .posters { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .posters img { width: 100%; height: auto; display: block; border: 1px solid var(--ink); }
-  .posters figure { margin: 0; } .posters figcaption { font-size: .85rem; font-style: italic; margin-top: 4px; }
   .small { font-size: .88rem; }
   a { color: var(--ink); }
   .nogl { padding: 24px; }
   @media (max-width: 860px) {
     .grid { grid-template-columns: minmax(0, 1fr) 92px; grid-template-areas: "ctrl ctrl" "map slider" "panel panel" "legend legend"; grid-template-rows: auto; gap: 12px 10px; }
     :root { --stage-h: clamp(380px, 62vh, 640px); }
-    .posters { grid-template-columns: 1fr; }
-  }
+    }
   @media (max-width: 600px) {
     main { padding: 10px 12px 48px; }
     .top { align-items: baseline; gap: 8px; }
@@ -210,15 +209,6 @@
   <h3 data-t="notesH"></h3>
   <ul class="notes" id="notes"></ul>
 
-  <h3 data-t="postersH"></h3>
-  <div class="posters">
-    <figure><a href="day8-akiya-en.png"><img src="day8-akiya-en.png" width="1080" height="1350" loading="lazy"
-      alt="Poster, English version: a black-and-white map of Japan hatched by the census year each prefecture would return to if its vacant homes were filled. From abroad: Japan reaches 131.7 million, a new record; Hokkaido and Akita 2015, Kagoshima 2000. From Tokyo: Tokyo 1930. From the big cities: Osaka 1970, Aichi 1985, Tokyo 2000."></a>
-      <figcaption>English (1080 &times; 1350)</figcaption></figure>
-    <figure><a href="day8-akiya-ja.png"><img src="day8-akiya-ja.png" width="1080" height="1350" loading="lazy" lang="ja"
-      alt="日本語版ポスター：空き家に人が住んだ場合に各都道府県の人口が何年の水準に戻るかを示した白黒の日本地図。海外から：日本全体1億3,172万人で過去最多、北海道・秋田2015年、鹿児島2000年。東京から：東京1930年。大都市から：大阪1970年、愛知1985年、東京2000年。"></a>
-      <figcaption>日本語 (1080 &times; 1350)</figcaption></figure>
-  </div>
 
   <h3 data-t="srcH"></h3>
   <ul class="small" id="sources"></ul>
@@ -269,7 +259,6 @@ const T = {
       "B and C: Japan’s total stays the same. In C, the 6 prefectures give people in proportion to their size.",
       "Okinawa is moved into a box. The Ogasawara Islands are not shown.",
     ],
-    postersH: "Posters",
     srcH: "Sources",
     sources: [
       "Statistics Bureau of Japan, 2023 Housing and Land Survey, Table 1-1 (e-Stat, retrieved 2026-11-05)",
@@ -318,7 +307,6 @@ const T = {
       "BとC：日本全体の人数は変わらない。Cは6都府県が人口の割合で人を出す。",
       "沖縄は枠に入れて表示。小笠原諸島は表示しない。",
     ],
-    postersH: "ポスター",
     srcH: "出典",
     sources: [
       "総務省統計局「令和5年住宅・土地統計調査」第1-1表（e-Stat、2026年11月5日取得）",
@@ -413,7 +401,7 @@ function buildScene() {
   try {
     renderer = new THREE.WebGLRenderer({ antialias: true });
   } catch (e) {
-    stage.insertAdjacentHTML("beforeend", '<p class="nogl">WebGL is not available. See the poster images below.</p>');
+    stage.insertAdjacentHTML("beforeend", '<p class="nogl">WebGL is not available in this browser.</p><img src="screenshot.png" alt="" style="width:100%;height:auto;display:block">');
     return false;
   }
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));

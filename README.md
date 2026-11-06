@@ -96,7 +96,7 @@ python scripts/render.py             # -> output/day8-akiya-en.png, output/day8-
 cd scripts && python build_web.py    # -> docs/data/akiya.json, prefectures.geojson, coast.json
 ```
 
-`render.py` downloads the fonts into `.cache/fonts/` on first run. Copy the images into `docs/` to update the web page. The page in `docs/` is deployed to GitHub Pages by `.github/workflows/pages.yml` on every push to `main` that changes `docs/`.
+`render.py` downloads the fonts into `.cache/fonts/` on first run. The poster images stay in `output/`; the web page does not use them. `docs/screenshot.png` (portal thumbnail) and `docs/og.png` (link preview, 1200 × 630) are screenshots of the 3D page, scenario "From Tokyo" at 100%. The page in `docs/` is deployed to GitHub Pages by `.github/workflows/pages.yml` on every push to `main` that changes `docs/`.
 
 ## Alt text
 
