@@ -53,6 +53,7 @@
   .vs-thumb { position: absolute; left: 50%; width: 60px; height: 34px; margin: 0 0 -17px -30px; bottom: 0; background: var(--paper); border: 2px solid #000; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1.05rem; font-variant-numeric: tabular-nums; box-shadow: 0 2px 0 #000; }
   .vslider:focus-visible .vs-thumb { outline: 2px solid #000; outline-offset: 3px; }
   .vs-people { font-size: .82rem; line-height: 1.3; min-height: 2.6em; }
+  .vs-people strong { display: block; font-size: 1.05rem; line-height: 1.2; margin-bottom: 2px; }
   .vs-hint { font-size: .72rem; font-style: italic; margin-top: 2px; }
   .national { font-style: italic; font-size: clamp(1.25rem, 2.6vw, 1.7rem); margin: 10px 0 2px; }
   .national-sub { font-size: .9rem; margin: 0 0 10px; min-height: 1.4em; }
@@ -191,13 +192,14 @@ const T = {
     A: "A  From abroad", Asub: "Japan grows",
     B: "B  From Tokyo", Bsub: "Tokyo shrinks",
     C: "C  From big cities", Csub: "6 big prefectures shrink",
-    rate: "Akiya filled", vsHint: "Drag up",
-    movers: n => `${fmtM(n)} people`,
+    rate: "Share of akiya\nmoved into", vsHint: "Drag up",
+    movers: (n, h) => [fmtM(n).replace(" million", "M"), "people move in"],
+    moversLine: (n, h) => `${fmtM(n)} people move into ${fmtM(h)} akiya.`,
     hint: "Drag to turn. Tap a prefecture.",
     natRecord: p => `Japan: ${fmtM(p)}, the most ever`,
     natBack: (p, y) => `Japan: back to ${y}`,
     natSame: "Japan: no change",
-    natSubRecord: (pk, y) => `Peak so far: ${fmtM(pk)} (${y})`,
+    natSubRecord: (pk, y) => `Peak so far: ${fmtM(pk)} (${y}).`,
     natSubSame: "People only move within Japan.",
     legendT: "Height = the year it goes back to",
     legend: { up: "Gains people", down: "Loses people", rec: "Below now: the most ever", same: "No change" },
@@ -232,24 +234,25 @@ const T = {
   ja: {
     title: "空き家に移住したら、あの頃に戻れるか？",
     subtitle: "If people moved into Japan’s akiya, what year would each place go back to?",
-    whereFrom: "誰が住む？",
+    whereFrom: "誰が移住する？",
     A: "A  海外から", Asub: "日本の人口が増える",
     B: "B  東京から", Bsub: "東京が減る",
     C: "C  大都市から", Csub: "6都府県が減る",
-    rate: "空き家に\n住む割合", vsHint: "上へドラッグ",
-    movers: n => fmtJ(n),
+    rate: "空き家に\n移住する割合", vsHint: "上へドラッグ",
+    movers: (n, h) => [fmtJ(n), "が移住"],
+    moversLine: (n, h) => `${fmtJ(n)}が空き家${fmtJ(h).replace("人", "戸")}に移住。`,
     hint: "ドラッグで回転。県をタップで詳しく。",
     natRecord: p => `日本全体：${fmtJ(p)}（過去最多）`,
     natBack: (p, y) => `日本全体：${y}年に戻る`,
     natSame: "日本全体：変わらない",
-    natSubRecord: (pk, y) => `これまでの最多は${y}年の${fmtJ(pk)}`,
-    natSubSame: "国内で動くだけ",
+    natSubRecord: (pk, y) => `これまでの最多は${y}年の${fmtJ(pk)}。`,
+    natSubSame: "国内で動くだけ。",
     legendT: "高さ＝戻る年",
     legend: { up: "人が増える", down: "人が減る", rec: "今より下：過去最多", same: "変わらない" },
     today: "今（2025年）", recLayer: "過去最多",
     name: p => p.ja, alt: p => p.en,
     backTo: "戻る年", record: "過去最多", recordSub: "1920年以降でいちばん多い", low: "過去最少", same: "変わらない",
-    rows: { akiya: "空き家", pph: "1世帯の人数", pop2025: "今（2025年）", move: "住む人", out: "出ていく人", newPop: "移動後" },
+    rows: { akiya: "空き家", pph: "1世帯の人数", pop2025: "今（2025年）", move: "移住してくる人", out: "出ていく人", newPop: "移動後" },
     chartNote: y => y ? `破線＝移動後の人口、丸＝${y}年` : "破線＝移動後の人口",
     sending: "人が減る県は、この人数まで少なかった最後の年を示す。",
     tokyoB: "東京の空き家は数えない。",
@@ -654,19 +657,25 @@ function update() {
   const t = T[state.lang];
   const R = compute();
   updateScene(R);
+  const homes = DATA.prefs.reduce((a, p) => a + p.akiya, 0) * state.rate;
   const pct = Math.round(state.rate * 100);
   document.getElementById("rateOut").textContent = pct + "%";
   document.getElementById("vsThumb").style.bottom = pct + "%";
   document.getElementById("vsFill").style.height = pct + "%";
   const vs = document.getElementById("vslider");
   vs.setAttribute("aria-valuenow", pct); vs.setAttribute("aria-valuetext", pct + "%"); vs.setAttribute("aria-label", t.rate);
-  document.getElementById("moversOut").textContent = t.movers(R.movers);
+  const [m1, m2] = t.movers(R.movers, homes);
+  const mo = document.getElementById("moversOut");
+  mo.innerHTML = ""; const b1 = document.createElement("strong"); b1.textContent = m1;
+  mo.append(b1, m2);
   const nat = document.getElementById("national"), sub = document.getElementById("nationalSub");
   const peak = Math.max(...Object.values(DATA.national.series));
   const peakY = Object.keys(DATA.national.series).find(y => DATA.national.series[y] === peak);
-  if (R.nat.year === "same") { nat.textContent = t.natSame; sub.textContent = state.scen === "A" ? "" : t.natSubSame; }
-  else if (R.nat.year === "record") { nat.textContent = t.natRecord(R.nat.pop); sub.textContent = t.natSubRecord(peak, peakY); }
-  else { nat.textContent = t.natBack(R.nat.pop, R.nat.year); sub.textContent = ""; }
+  const line = t.moversLine(R.movers, homes);
+  const sp = state.lang === "ja" ? "" : " ";
+  if (R.nat.year === "same") { nat.textContent = t.natSame; sub.textContent = line + (state.scen === "A" ? "" : sp + t.natSubSame); }
+  else if (R.nat.year === "record") { nat.textContent = t.natRecord(R.nat.pop); sub.textContent = line + sp + t.natSubRecord(peak, peakY); }
+  else { nat.textContent = t.natBack(R.nat.pop, R.nat.year); sub.textContent = line; }
   renderPanel(R);
 }
 
