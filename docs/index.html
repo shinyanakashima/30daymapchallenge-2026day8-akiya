@@ -76,8 +76,8 @@
   .stage-head > * { display: inline-block; background: rgba(244,241,234,.85); }
   .national { font-style: italic; font-size: clamp(1.2rem, 2.2vw, 1.6rem); line-height: 1.2; margin: 0; }
   .national-sub { font-size: .85rem; margin: 2px 0 0; }
-  .grid { display: grid; grid-template-columns: minmax(0, 1.75fr) 104px minmax(0, 1fr); grid-template-areas: "map slider ctrl" "map slider panel" "legend legend panel"; grid-template-rows: auto 1fr auto; gap: 12px 16px; align-items: start; }
-  .g-ctrl { grid-area: ctrl; } .g-legend { grid-area: legend; } .g-legend .hint { margin-top: 0; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1.75fr) 104px minmax(0, 1fr); grid-template-areas: "map slider ctrl" "map slider panel"; grid-template-rows: auto 1fr; gap: 12px 16px; align-items: start; }
+  .g-ctrl { grid-area: ctrl; }
   .g-map { grid-area: map; } .g-slider { grid-area: slider; } .g-panel { grid-area: panel; }
   .stage { position: relative; height: var(--stage-h); min-height: 420px; border: 1px solid var(--ink); background: var(--paper); overflow: hidden; }
   .stage canvas { display: block; touch-action: none; }
@@ -89,6 +89,20 @@
   .pl.sel { background: #000; color: var(--paper); }
   .reset { position: absolute; right: 8px; top: 8px; font-size: .8rem; border: 1px solid #000; background: var(--paper); padding: 2px 8px; }
   .hint { font-size: .85rem; font-style: italic; margin: 6px 0 0; }
+  .stage-legend { position: absolute; left: 8px; bottom: 8px; max-width: 300px; z-index: 2; background: rgba(244,241,234,.9); border: 1px solid #000; padding: 6px 9px 5px; pointer-events: none; }
+  .stage-legend .hint { font-size: .72rem; margin: 4px 0 0; }
+  .stage-legend .legend { margin: 0; font-size: .78rem; gap: 2px; }
+  .stage-legend .legend .t { font-size: .8rem; margin-bottom: 2px; }
+  .topr { display: flex; align-items: center; gap: 14px; white-space: nowrap; }
+  .info-btn { border: 0; padding: 2px 0; display: inline-flex; align-items: center; gap: 6px; font-size: .9rem; }
+  .info-btn .i { display: inline-flex; width: 18px; height: 18px; border: 1px solid #000; border-radius: 50%; align-items: center; justify-content: center; font-style: italic; font-weight: 600; font-size: .78rem; line-height: 1; }
+  .info-btn:hover span[data-t] { text-decoration: underline; text-underline-offset: 3px; }
+  dialog#info { max-width: 760px; width: calc(100% - 32px); max-height: calc(100vh - 48px); border: 1px solid #000; background: var(--paper); color: var(--ink); padding: 18px 22px 20px; font: inherit; }
+  dialog#info::backdrop { background: rgba(0,0,0,.35); }
+  .dlg-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; border-bottom: 3px double #000; padding-bottom: 6px; }
+  .dlg-head h2 { margin: 0; font-size: 1.2rem; font-weight: 600; }
+  .dlg-close { border: 1px solid #000; padding: 2px 10px; font-size: .85rem; }
+  dialog#info h3 { margin: 1rem 0 .4rem; font-size: 1rem; }
   .legend { display: grid; gap: 4px; margin: 12px 0 0; font-size: .88rem; }
   .legend .t { font-weight: 600; }
   .legend span { display: flex; gap: 8px; align-items: baseline; }
@@ -111,10 +125,18 @@
   a { color: var(--ink); }
   .nogl { padding: 24px; }
   @media (max-width: 860px) {
-    .grid { grid-template-columns: minmax(0, 1fr) 92px; grid-template-areas: "ctrl ctrl" "map slider" "panel panel" "legend legend"; grid-template-rows: auto; gap: 12px 10px; }
+    .grid { grid-template-columns: minmax(0, 1fr) 92px; grid-template-areas: "ctrl ctrl" "map slider" "panel panel"; grid-template-rows: auto; gap: 12px 10px; }
     :root { --stage-h: clamp(380px, 62vh, 640px); }
     }
   @media (max-width: 600px) {
+    .info-btn span[data-t] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .topr { gap: 10px; }
+    .stage-legend { left: 4px; bottom: 4px; right: 4px; max-width: none; padding: 4px 6px; }
+    .stage-legend .legend { grid-template-columns: 1fr 1fr; font-size: .66rem; gap: 1px 8px; }
+    .stage-legend .legend .t { grid-column: 1 / -1; font-size: .68rem; margin: 0; }
+    .stage-legend .legend i { width: 16px; height: 9px; }
+    .stage-legend .legend span { gap: 4px; }
+    .stage-legend .hint { display: none; }
     main { padding: 10px 12px 48px; }
     .top { align-items: baseline; gap: 8px; }
     h1 { font-size: 1.08rem; margin: 0; }
@@ -154,9 +176,12 @@
       <p class="sub" data-t="subtitle"></p>
       <p class="tag">#30DayMapChallenge 2026 &middot; Day 8: Utopia</p>
     </div>
-    <div class="lang" role="group" aria-label="Language">
-      <button type="button" data-lang="en" aria-pressed="true">EN</button> /
-      <button type="button" data-lang="ja" aria-pressed="false">日本語</button>
+    <div class="topr">
+      <button type="button" class="info-btn" id="infoBtn" aria-haspopup="dialog"><span class="i" aria-hidden="true">i</span><span data-t="infoBtn"></span></button>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="en" aria-pressed="true">EN</button> /
+        <button type="button" data-lang="ja" aria-pressed="false">日本語</button>
+      </div>
     </div>
   </div>
   <hr class="rule">
@@ -184,11 +209,8 @@
       <div class="stage" id="stage">
         <div class="stage-head"><p class="national" id="national"></p><br><p class="national-sub" id="nationalSub"></p></div>
         <button type="button" class="reset" id="reset">&#8634;</button>
+        <div class="stage-legend"><div class="legend" id="legend"></div><p class="hint" data-t="hint"></p></div>
       </div>
-    </div>
-    <div class="g-legend">
-      <p class="hint" data-t="hint"></p>
-      <div class="legend" id="legend"></div>
     </div>
     <div class="g-slider">
       <div class="vs-wrap">
@@ -214,14 +236,19 @@
     <div class="panel g-panel" id="panel" aria-live="polite"></div>
   </div>
 
+</main>
+
+<dialog id="info" aria-labelledby="infoTitle">
+  <div class="dlg-head">
+    <h2 id="infoTitle" data-t="infoBtn"></h2>
+    <button type="button" class="dlg-close" id="infoClose" data-t="close"></button>
+  </div>
   <h3 data-t="notesH"></h3>
   <ul class="notes" id="notes"></ul>
-
-
   <h3 data-t="srcH"></h3>
   <ul class="small" id="sources"></ul>
   <p class="small"><span data-t="repo"></span> <a href="https://github.com/shinyanakashima/30daymapchallenge-2026day8-akiya">github.com/shinyanakashima/30daymapchallenge-2026day8-akiya</a></p>
-</main>
+</dialog>
 
 <script type="module">
 import * as THREE from "three";
@@ -257,7 +284,7 @@ const T = {
     chartNote: y => y ? `The dashed line is the population after the move. The ring marks ${y}.` : "The dashed line is the population after the move.",
     sending: "This prefecture loses people. The year shown is the last census with no more people than after the move.",
     tokyoB: "Moves into akiya inside Tokyo are not counted.",
-    notesH: "Notes",
+    notesH: "Notes", infoBtn: "Notes and sources", close: "Close",
     notes: [
       "Akiya here are 3.86 million empty homes with no planned use (2023). Homes for rent or sale and second homes are not included.",
       "Some of these homes need repairs before anyone can live in them. The numbers assume all of them are lived in; they are not a forecast.",
@@ -305,7 +332,7 @@ const T = {
     chartNote: y => y ? `破線は移動後の人口。丸は同じくらいの人口だった${y}年。` : "破線は移動後の人口。",
     sending: "人口が減る県は、移動後の人口以下だった最後の年を示している。",
     tokyoB: "東京都内の空き家への移住は数えていない。",
-    notesH: "注記",
+    notesH: "注記", infoBtn: "注記と出典", close: "閉じる",
     notes: [
       "対象は、使う予定のない空き家386万戸（2023年）。賃貸用・売却用の空き家や別荘は含まない。",
       "空き家には、修理しないと住めない家も含まれる。すべてに人が住んだと仮定して計算したもので、将来の予測ではない。",
@@ -792,6 +819,15 @@ function setRate(pct) {
     else if (e.key === "Home") { e.preventDefault(); setRate(0); }
     else if (e.key === "End") { e.preventDefault(); setRate(100); }
   });
+})();
+
+// notes and sources dialog
+(() => {
+  const dlg = document.getElementById("info"), btn = document.getElementById("infoBtn");
+  btn.addEventListener("click", () => dlg.showModal());
+  document.getElementById("infoClose").addEventListener("click", () => dlg.close());
+  dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
+  dlg.addEventListener("close", () => btn.focus());
 })();
 
 Promise.all(["data/akiya.json", "data/prefectures.geojson", "data/coast.json"].map(u => fetch(u).then(r => r.json())))
