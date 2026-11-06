@@ -69,8 +69,8 @@
   .stage-head > * { display: inline-block; background: rgba(244,241,234,.85); }
   .national { font-style: italic; font-size: clamp(1.2rem, 2.2vw, 1.6rem); line-height: 1.2; margin: 0; }
   .national-sub { font-size: .85rem; margin: 2px 0 0; }
-  .grid { display: grid; grid-template-columns: minmax(0, 1.75fr) 104px minmax(0, 1fr); grid-template-areas: "map slider ctrl" "map slider panel"; grid-template-rows: auto 1fr; gap: 12px 16px; align-items: start; }
-  .g-ctrl { grid-area: ctrl; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1.75fr) 104px minmax(0, 1fr); grid-template-areas: "map slider ctrl" "map slider panel" "legend legend panel"; grid-template-rows: auto 1fr auto; gap: 12px 16px; align-items: start; }
+  .g-ctrl { grid-area: ctrl; } .g-legend { grid-area: legend; } .g-legend .hint { margin-top: 0; }
   .g-map { grid-area: map; } .g-slider { grid-area: slider; } .g-panel { grid-area: panel; }
   .stage { position: relative; height: var(--stage-h); min-height: 420px; border: 1px solid var(--ink); background: var(--paper); overflow: hidden; }
   .stage canvas { display: block; touch-action: none; }
@@ -107,18 +107,38 @@
   a { color: var(--ink); }
   .nogl { padding: 24px; }
   @media (max-width: 860px) {
-    .grid { grid-template-columns: minmax(0, 1fr) 92px; grid-template-areas: "ctrl ctrl" "map slider" "panel panel"; grid-template-rows: auto; gap: 12px 10px; }
+    .grid { grid-template-columns: minmax(0, 1fr) 92px; grid-template-areas: "ctrl ctrl" "map slider" "panel panel" "legend legend"; grid-template-rows: auto; gap: 12px 10px; }
     :root { --stage-h: clamp(380px, 62vh, 640px); }
     .posters { grid-template-columns: 1fr; }
   }
   @media (max-width: 600px) {
-    .top { flex-direction: column-reverse; gap: 4px; }
-    .lang { align-self: flex-end; }
-    .seg button { padding: 6px 8px; font-size: .9rem; flex: 1; }
-    .stage-head { right: 40px; padding: 8px 10px 4px; }
-    .national { font-size: 1.05rem; } .national-sub { font-size: .78rem; }
-    .big { font-size: 2.1rem; }
-    .stage { min-height: 380px; } .vslider { min-height: 380px; }
+    main { padding: 10px 12px 48px; }
+    .top { align-items: baseline; gap: 8px; }
+    h1 { font-size: 1.08rem; margin: 0; }
+    .sub, .tag { display: none; }
+    .lang { font-size: .85rem; }
+    .rule { margin: 6px 0 8px; border-top-width: 3px; }
+    .grid { gap: 8px 8px; }
+    .g-ctrl > .small { display: none; }
+    .grp-h { font-size: .72rem; margin-bottom: 3px; }
+    .seg small { display: none; }
+    .seg button { padding: 6px 8px; font-size: .9rem; flex: 1; text-align: center; }
+    :root { --stage-h: 46vh; }
+    .stage-head { right: 40px; padding: 6px 8px 2px; }
+    .national { font-size: .98rem; } .national-sub { font-size: .72rem; }
+    .stage { min-height: 320px; } .vslider { min-height: 320px; }
+    .vs-label { font-size: .72rem; min-height: 0; }
+    .vs-max, .vs-min, .vs-hint { display: none; }
+    .vs-track { margin: 22px 0 22px; }
+    .vs-step { font-size: .68rem; }
+    .panel { display: flex; flex-direction: column; padding-top: 6px; }
+    .panel h2 { font-size: 1.15rem; }
+    .panel .alt { display: none; }
+    .big { font-size: 1.7rem; margin: 0; }
+    .big small { font-size: .8rem; }
+    .panel .chart { order: 1; margin-top: 4px; }
+    .panel dl { order: 2; font-size: .85rem; }
+    .panel .hint { order: 3; }
     .vs-track { width: 92px; } .vs-thumb { width: 80px; margin-left: -40px; }
     .yl { font-size: 10.5px; } .pl { font-size: 11px; }
   }
@@ -163,6 +183,8 @@
         <div class="stage-head"><p class="national" id="national"></p><br><p class="national-sub" id="nationalSub"></p></div>
         <button type="button" class="reset" id="reset">&#8634;</button>
       </div>
+    </div>
+    <div class="g-legend">
       <p class="hint" data-t="hint"></p>
       <div class="legend" id="legend"></div>
     </div>
