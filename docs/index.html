@@ -114,14 +114,14 @@
     <div>
       <div class="small" data-t="whereFrom"></div>
       <div class="seg" role="group" id="scenarios">
-        <button type="button" data-s="A" aria-pressed="true"><span data-t="A"></span><small data-t="Asub"></small></button>
-        <button type="button" data-s="B" aria-pressed="false"><span data-t="B"></span><small data-t="Bsub"></small></button>
+        <button type="button" data-s="A" aria-pressed="false"><span data-t="A"></span><small data-t="Asub"></small></button>
+        <button type="button" data-s="B" aria-pressed="true"><span data-t="B"></span><small data-t="Bsub"></small></button>
         <button type="button" data-s="C" aria-pressed="false"><span data-t="C"></span><small data-t="Csub"></small></button>
       </div>
     </div>
     <div class="slider">
-      <label for="rate"><span data-t="rate"></span> <output id="rateOut">100%</output></label>
-      <input id="rate" type="range" min="0" max="100" step="5" value="100">
+      <label for="rate"><span data-t="rate"></span> <output id="rateOut">10%</output></label>
+      <input id="rate" type="range" min="0" max="100" step="5" value="10">
       <div class="small" id="moversOut"></div>
     </div>
   </div>
@@ -164,7 +164,7 @@ import { CSS2DRenderer, CSS2DObject } from "three/addons/renderers/CSS2DRenderer
 const T = {
   en: {
     title: "If people moved into Japan’s akiya, what year would each place go back to?",
-    subtitle: "空き家に移住したら、街はいつに戻れるか？",
+    subtitle: "空き家に移住したら、あの頃に戻れるか？",
     whereFrom: "Who moves in?",
     A: "A  From abroad", Asub: "Japan grows",
     B: "B  From Tokyo", Bsub: "Tokyo shrinks",
@@ -208,7 +208,7 @@ const T = {
     okinawa: "Okinawa",
   },
   ja: {
-    title: "空き家に移住したら、街はいつに戻れるか？",
+    title: "空き家に移住したら、あの頃に戻れるか？",
     subtitle: "If people moved into Japan’s akiya, what year would each place go back to?",
     whereFrom: "誰が住む？",
     A: "A  海外から", Asub: "日本の人口が増える",
@@ -266,7 +266,7 @@ function fmtJ(n) {
 }
 const fmtN = (n, lang) => Math.round(n).toLocaleString(lang === "ja" ? "ja" : "en");
 
-const state = { lang: "en", scen: "A", rate: 1, sel: 5 };
+const state = { lang: "en", scen: "B", rate: 0.1, sel: 5 };
 let DATA, GEO, COAST, byCode = {};
 
 // ------------------------------------------------------------- model

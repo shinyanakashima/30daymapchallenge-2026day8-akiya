@@ -61,7 +61,7 @@ def classify(v):
 TEXT = {
     "en": {
         "title": "If people moved into Japan’s akiya,\nwhat year would each place go back to?",
-        "subtitle": "空き家に移住したら、街はいつに戻れるか？",
+        "subtitle": "空き家に移住したら、あの頃に戻れるか？",
         "A": "A  From abroad",
         "B": "B  From Tokyo",
         "C": "C  From the big cities",
@@ -105,7 +105,7 @@ TEXT = {
         "font_big": "SourceSerif4-Display-Italic",
     },
     "ja": {
-        "title": "空き家に移住したら、\n街はいつに戻れるか？",
+        "title": "空き家に移住したら、\nあの頃に戻れるか？",
         "subtitle": "If people moved into Japan’s akiya, what year would each place go back to?",
         "A": "A  海外から",
         "B": "B  東京から",
