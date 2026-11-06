@@ -12,6 +12,13 @@ Interactive page: <https://shinyanakashima.github.io/30daymapchallenge-2026day8-
 
 On the page, census years are stacked as layers of Japan maps (today at the bottom, older years above). Each prefecture rises to the layer of the year its population goes back to: green if it gains people, red if it loses people; prefectures above every census sink below today's layer. Switch the scenario (A / B / C), change the share of akiya that people move into (0–100%) with the slider and the prefectures move between the layers. Drag to turn the view, and click or tap a prefecture to see its population from 1920 to 2025. English and Japanese are available (`?lang=ja`). The calculation in the page is the same as in `scripts/compute.py`; at 100% it gives the same results.
 
+## Media
+
+Screen recordings of the interactive page, for posts:
+
+- [`media/day8-akiya-demo-en.mp4`](media/day8-akiya-demo-en.mp4): 1920 × 1080, 15 s, no sound. "From Tokyo" at 10%, then Play to 100%, "From big cities", "From abroad", and back to "From Tokyo".
+- [`media/30daychallenge-8d-Utopia.mp4`](media/30daychallenge-8d-Utopia.mp4): 1640 × 970, 17 s. Moving the slider by hand, "From Tokyo" and "From big cities".
+
 ## The map
 
 Japan has about 3.86 million vacant dwellings that are not held for rent, for sale or as second homes (2023 Housing and Land Survey). If people moved into all of them, at each prefecture's average household size, 8.67 million people would move in. The map shows, for each prefecture, the census year whose population it would return to, under three cases of where those people come from:
