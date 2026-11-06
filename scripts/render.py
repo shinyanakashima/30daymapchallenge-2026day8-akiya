@@ -82,11 +82,11 @@ TEXT = {
         "notes": [
             "Akiya here are vacant dwellings with no specific use (2023). Dwellings held for rent or "
             "sale and second homes are not included.",
-            "Many of these houses could not be lived in as they are. This is a calculation of what "
-            "could be, not a forecast.",
-            "People per house: average members per private household in each prefecture, 2020 census.",
-            "Return year: the latest census year (every five years, 1920–2020; 1945 not used) in "
-            "which the prefecture had at least the new population. No interpolation.",
+            "Some of these homes need repairs before anyone can live in them. The numbers assume "
+            "all of them are lived in; they are not a forecast.",
+            "People per home is each prefecture's average household size in the 2020 census.",
+            "The year is the last census year (every five years, 1920–2020; 1945 not used) in "
+            "which the prefecture had at least the new population. Years in between are not estimated.",
             "In B and C the population of Japan as a whole does not change. In C the people leaving "
             "are split among the six prefectures by population.",
             "Okinawa is shown in an inset box, not in its true position. The Ogasawara Islands "
@@ -129,14 +129,14 @@ TEXT = {
             "対象は2023年の「使用目的のない空き家」"
             "（賃貸・売却用及び二次的住宅を除く空き家）。"
             "賃貸用・売却用・別荘などは含まない。",
-            "空き家にはそのままでは住めないものも"
-            "含まれる。予測ではなく、「ありえるか"
-            "もしれない」仮定の計算である。",
+            "空き家には、修理しないと住めない家も含まれる。"
+            "すべてに人が住んだと仮定して計算したもので、"
+            "将来の予測ではない。",
             "1戸に住む人数は、2020年国勢調査の都道府県"
             "別「一般世帯の1世帯当たり人員」を使った。",
-            "戻る年は、新しい人口以上だった最も新しい"
-            "国勢調査の年（1920〜2020年、5年ごと。1945年は"
-            "使わない）。補間はしない。",
+            "戻る年は、移動後の人口以上だった最後の"
+            "国勢調査の年とした（1920〜2020年、5年ごと。1945年は"
+            "使わない）。間の年は推計しない。",
             "BとCでは日本全体の人口は変わらない。"
             "Cの転出者は6都府県の人口の割合で分けた。",
             "沖縄県は別枠で、実際の位置とは違う場所に"
