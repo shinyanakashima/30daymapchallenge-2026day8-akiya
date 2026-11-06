@@ -53,21 +53,25 @@
   .seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
   .seg small { display: block; font-size: .72rem; font-style: italic; opacity: .85; }
   :root { --stage-h: clamp(440px, calc(100vh - 150px), 780px); }
-  .vslider { height: var(--stage-h); min-height: 420px; display: flex; flex-direction: column; align-items: center; text-align: center; user-select: none; -webkit-user-select: none; outline: none; }
-  .vs-label { white-space: pre-line; font-size: .85rem; line-height: 1.25; font-weight: 600; min-height: 2.6em; }
-  .vs-max, .vs-min { font-size: .75rem; font-variant-numeric: tabular-nums; }
-  .vs-track { position: relative; flex: 1; width: 104px; margin: 24px 0 20px; cursor: ns-resize; touch-action: none; }
-  .vs-rail { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: #000; }
-  .vs-fill { position: absolute; left: 50%; bottom: 0; width: 12px; margin-left: -6px; background: #000; }
-  .vs-tick { position: absolute; left: 50%; width: 16px; margin-left: -8px; height: 1px; background: #000; }
-  .vs-tl { position: absolute; left: calc(50% + 11px); transform: translateY(50%); font-size: .68rem; line-height: 1; white-space: nowrap; font-variant-numeric: tabular-nums; }
-  .vs-thumb { position: absolute; left: 50%; width: 84px; height: 44px; margin: 0 0 -22px -42px; bottom: 0; z-index: 1; background: var(--paper); border: 2px solid #000; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; font-variant-numeric: tabular-nums; box-shadow: 0 2px 0 #000; }
-  .vs-thumb b { font-size: 1.05rem; } .vs-thumb small { font-size: .72rem; }
+  .vs-wrap { height: var(--stage-h); min-height: 420px; display: flex; flex-direction: column; align-items: stretch; text-align: center; }
+  .vs-label { white-space: pre-line; font-size: .85rem; line-height: 1.25; font-weight: 600; }
+  .vslider { flex: 1; display: flex; user-select: none; -webkit-user-select: none; outline: none; padding: 26px 0 26px; }
+  .vs-track { position: relative; flex: 1; cursor: ns-resize; touch-action: none; }
+  .vs-rail { position: absolute; left: 30px; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: #000; }
+  .vs-fill { position: absolute; left: 30px; bottom: 0; width: 6px; margin-left: -3px; background: #9a9486; }
+  .vs-tick { position: absolute; left: 30px; width: 9px; height: 1px; background: #000; }
+  .vs-tl { position: absolute; left: 43px; transform: translateY(50%); font-size: .68rem; line-height: 1; white-space: nowrap; font-variant-numeric: tabular-nums; text-align: left; }
+  .vs-thumb { position: absolute; left: 30px; width: 70px; height: 46px; margin: 0 0 -23px -35px; bottom: 0; z-index: 1; background: #000; color: var(--paper); border-radius: 3px; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; font-variant-numeric: tabular-nums; cursor: grab; }
+  .vs-thumb::before { content: ""; width: 18px; height: 4px; border-top: 1px solid var(--paper); border-bottom: 1px solid var(--paper); margin-bottom: 3px; opacity: .8; }
+  .vs-thumb b { font-size: .98rem; } .vs-thumb small { font-size: .68rem; opacity: .9; }
   .vslider:focus-visible .vs-thumb { outline: 2px solid #000; outline-offset: 3px; }
-  .vs-people { font-size: .82rem; line-height: 1.3; min-height: 2.6em; }
-  .vs-people strong { display: block; font-size: 1.05rem; line-height: 1.2; margin-bottom: 2px; }
-  .vs-hint { font-size: .72rem; font-style: italic; margin-top: 2px; }
-  .vs-step { font-size: .78rem; line-height: 1.3; }
+  .vs-btns { display: grid; gap: 4px; margin-top: 2px; }
+  .vs-btns button { border: 1px solid #000; padding: 3px 0; font-size: .74rem; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .vs-btns button[aria-pressed="true"] { background: #000; color: var(--paper); }
+  .vs-presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+  .vs-presets button { font-size: .68rem; padding: 3px 0; }
+  .vs-play { font-weight: 600; }
+  .vs-step { font-size: .7rem; line-height: 1.3; margin-top: 6px; }
   .stage-head { position: absolute; left: 0; top: 0; right: 44px; padding: 10px 14px 6px; pointer-events: none; z-index: 2; }
   .stage-head > * { display: inline-block; background: rgba(244,241,234,.85); }
   .national { font-style: italic; font-size: clamp(1.2rem, 2.2vw, 1.6rem); line-height: 1.2; margin: 0; }
@@ -125,11 +129,10 @@
     :root { --stage-h: 46vh; }
     .stage-head { right: 40px; padding: 6px 8px 2px; }
     .national { font-size: .98rem; } .national-sub { font-size: .72rem; }
-    .stage { min-height: 320px; } .vslider { min-height: 320px; }
-    .vs-label { font-size: .72rem; min-height: 0; }
-    .vs-max, .vs-min, .vs-hint { display: none; }
-    .vs-track { margin: 22px 0 22px; }
-    .vs-step { font-size: .68rem; }
+    .stage { min-height: 320px; } .vs-wrap { min-height: 320px; }
+    .vs-label { font-size: .72rem; }
+    .vslider { padding: 24px 0; }
+    .vs-step { display: none; }
     .panel { display: flex; flex-direction: column; padding-top: 6px; }
     .panel h2 { font-size: 1.15rem; }
     .panel .alt { display: none; }
@@ -138,7 +141,7 @@
     .panel .chart { order: 1; margin-top: 4px; }
     .panel dl { order: 2; font-size: .85rem; }
     .panel .hint { order: 3; }
-    .vs-track { width: 92px; } .vs-thumb { width: 80px; margin-left: -40px; }
+    .vs-tl { left: 41px; } .vs-thumb { width: 58px; margin-left: -29px; } .vs-thumb b { font-size: .86rem; }
     .yl { font-size: 10.5px; } .pl { font-size: 11px; }
   }
 </style>
@@ -188,19 +191,24 @@
       <div class="legend" id="legend"></div>
     </div>
     <div class="g-slider">
-      <div class="vslider" id="vslider" role="slider" tabindex="0" aria-valuemin="0" aria-valuemax="100" aria-valuenow="10" aria-orientation="vertical">
+      <div class="vs-wrap">
         <div class="vs-label" data-t="rate"></div>
-        <div class="vs-max">100%</div>
-        <div class="vs-track" id="vsTrack">
-          <div class="vs-rail"></div>
-          <div class="vs-tick" style="bottom:25%"></div><div class="vs-tick" style="bottom:50%"></div><div class="vs-tick" style="bottom:75%"></div>
-          <div class="vs-tl" data-p="25" style="bottom:25%"></div><div class="vs-tl" data-p="50" style="bottom:50%"></div><div class="vs-tl" data-p="75" style="bottom:75%"></div><div class="vs-tl" data-p="100" style="bottom:100%"></div>
-          <div class="vs-fill" id="vsFill"></div>
-          <div class="vs-thumb" id="vsThumb"><b id="thumbPeople"></b><small id="rateOut">10%</small></div>
+        <div class="vslider" id="vslider" role="slider" tabindex="0" aria-valuemin="0" aria-valuemax="100" aria-valuenow="10" aria-orientation="vertical">
+          <div class="vs-track" id="vsTrack">
+            <div class="vs-rail"></div>
+            <div class="vs-fill" id="vsFill"></div>
+            <div class="vs-tick" style="bottom:0"></div><div class="vs-tick" style="bottom:25%"></div><div class="vs-tick" style="bottom:50%"></div><div class="vs-tick" style="bottom:75%"></div><div class="vs-tick" style="bottom:100%"></div>
+            <div class="vs-tl" data-p="0" style="bottom:0"></div><div class="vs-tl" data-p="25" style="bottom:25%"></div><div class="vs-tl" data-p="50" style="bottom:50%"></div><div class="vs-tl" data-p="75" style="bottom:75%"></div><div class="vs-tl" data-p="100" style="bottom:100%"></div>
+            <div class="vs-thumb" id="vsThumb"><b id="thumbPeople"></b><small id="rateOut">10%</small></div>
+          </div>
         </div>
-        <div class="vs-min">0%</div>
+        <div class="vs-btns">
+          <button type="button" class="vs-play" id="play"></button>
+          <div class="vs-presets" role="group">
+            <button type="button" data-r="10">10%</button><button type="button" data-r="50">50%</button><button type="button" data-r="100">100%</button>
+          </div>
+        </div>
         <div class="vs-step" id="vsStep"></div>
-        <div class="vs-hint" data-t="vsHint"></div>
       </div>
     </div>
     <div class="panel g-panel" id="panel" aria-live="polite"></div>
@@ -229,10 +237,10 @@ const T = {
     A: "Abroad", Asub: "Japan grows",
     B: "From Tokyo", Bsub: "Tokyo shrinks",
     C: "From big cities", Csub: "6 prefectures shrink",
-    rate: "Share of akiya\nmoved into", vsHint: "Drag up",
-    short: n => n >= 1e6 ? (n / 1e6).toFixed(n >= 1e7 ? 1 : 2) + "M" : Math.round(n / 1e3) + "k",
+    rate: "People\nmoving in", play: "\u25b6 Play", stop: "\u25a0 Stop",
+    short: n => n === 0 ? "0" : n >= 1e6 ? (n / 1e6).toFixed(n >= 1e7 ? 1 : 2) + "M" : Math.round(n / 1e3) + "k",
     thumb: n => T.en.short(n),
-    step: n => `Each 5% step = ${T.en.short(n)} people`,
+    step: n => `Drag up. One step (5%) = ${T.en.short(n)} people.`,
     moversLine: (n, h) => `${fmtM(n)} people move into ${fmtM(h)} akiya.`,
     hint: "Drag to turn. Tap a prefecture.",
     natRecord: p => `Japan: ${fmtM(p)}, the most ever`,
@@ -277,10 +285,10 @@ const T = {
     A: "海外から", Asub: "日本の人口が増える",
     B: "東京から", Bsub: "東京が減る",
     C: "大都市から", Csub: "6都府県が減る",
-    rate: "空き家に\n移住する割合", vsHint: "上へドラッグ",
-    short: n => fmtJ(n),
+    rate: "移住する\n人数", play: "\u25b6 再生", stop: "\u25a0 停止",
+    short: n => n === 0 ? "0人" : fmtJ(n),
     thumb: n => fmtJ(n),
-    step: n => `1目盛り（5%）＝${fmtJ(n)}`,
+    step: n => `上へドラッグ。1刻み（5%）＝${fmtJ(n)}`,
     moversLine: (n, h) => `${fmtJ(n)}が空き家${fmtJ(h).replace("人", "戸")}に移住。`,
     hint: "ドラッグで回転。県をタップで詳しく。",
     natRecord: p => `日本全体：${fmtJ(p)}（過去最多）`,
@@ -708,6 +716,8 @@ function update() {
   document.getElementById("thumbPeople").textContent = t.thumb(R.movers);
   document.querySelectorAll(".vs-tl").forEach(e => { e.textContent = t.short(full * e.dataset.p / 100); });
   document.getElementById("vsStep").textContent = t.step(full * 0.05);
+  document.querySelectorAll(".vs-presets button").forEach(b => b.setAttribute("aria-pressed", +b.dataset.r === pct));
+  document.getElementById("play").textContent = playing ? t.stop : t.play;
   vs.setAttribute("aria-valuetext", `${pct}% (${t.thumb(R.movers)})`);
   const nat = document.getElementById("national"), sub = document.getElementById("nationalSub");
   const peak = Math.max(...Object.values(DATA.national.series));
@@ -747,6 +757,20 @@ document.querySelectorAll("#scenarios button").forEach(b => b.addEventListener("
   update();
 }));
 // vertical slider
+let playing = null;
+function stopPlay() { if (playing) { clearInterval(playing); playing = null; update(); } }
+function play() {
+  if (playing) { stopPlay(); return; }
+  state.rate = 0; update();
+  playing = setInterval(() => {
+    const next = Math.round(state.rate * 100) + 5;
+    if (next > 100) { stopPlay(); return; }
+    state.rate = next / 100; update();
+  }, 180);
+  update();
+}
+document.getElementById("play").addEventListener("click", play);
+document.querySelectorAll(".vs-presets button").forEach(b => b.addEventListener("click", () => { stopPlay(); setRate(+b.dataset.r); }));
 function setRate(pct) {
   pct = Math.max(0, Math.min(100, Math.round(pct / 5) * 5));
   if (pct === Math.round(state.rate * 100)) return;
@@ -756,13 +780,14 @@ function setRate(pct) {
   const track = document.getElementById("vsTrack"), vs = document.getElementById("vslider");
   let dragging = false;
   const fromY = e => { const r = track.getBoundingClientRect(); return (1 - (e.clientY - r.top) / r.height) * 100; };
-  track.addEventListener("pointerdown", e => { dragging = true; track.setPointerCapture(e.pointerId); setRate(fromY(e)); vs.focus({ preventScroll: true }); });
+  track.addEventListener("pointerdown", e => { stopPlay(); dragging = true; track.setPointerCapture(e.pointerId); setRate(fromY(e)); vs.focus({ preventScroll: true }); });
   track.addEventListener("pointermove", e => { if (dragging) setRate(fromY(e)); });
   track.addEventListener("pointerup", () => { dragging = false; });
   track.addEventListener("pointercancel", () => { dragging = false; });
   vs.addEventListener("keydown", e => {
     const now = Math.round(state.rate * 100);
     const k = { ArrowUp: 5, ArrowRight: 5, ArrowDown: -5, ArrowLeft: -5, PageUp: 25, PageDown: -25 }[e.key];
+    if (k !== undefined || e.key === "Home" || e.key === "End") stopPlay();
     if (k !== undefined) { e.preventDefault(); setRate(now + k); }
     else if (e.key === "Home") { e.preventDefault(); setRate(0); }
     else if (e.key === "End") { e.preventDefault(); setRate(100); }
